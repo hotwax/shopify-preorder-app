@@ -1,0 +1,19 @@
+{
+  "name": "shopify-preorder-app",
+  "version": "1.0.0",
+  "description": "HotWax Commerce shopify preorder app",
+  "main": "public/script-tag.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hotwax/shopify-preorder-app.git"
+  },
+  "author": "HotWax Commerce",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hotwax/shopify-preorder-app/issues"
+  },
+  "homepage": "https://github.com/hotwax/shopify-preorder-app#readme"
+}
