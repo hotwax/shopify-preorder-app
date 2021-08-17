@@ -4,16 +4,21 @@
   "description": "HotWax Commerce shopify preorder app",
   "main": "public/script-tag.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx gulp"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hotwax/shopify-preorder-app.git"
   },
   "author": "HotWax Commerce",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/hotwax/shopify-preorder-app/issues"
   },
-  "homepage": "https://github.com/hotwax/shopify-preorder-app#readme"
+  "homepage": "https://github.com/hotwax/shopify-preorder-app#readme",
+  "devDependencies": {
+    "gulp": "^4.0.2",
+    "gulp-minify": "^3.1.0"
+  }
 }
