@@ -1,6 +1,6 @@
 
   (function () {
-    let jQueryBopis;
+    let jQueryPreOrder;
 
     this.preOrderCustomConfig = {
         'enableCartRedirection': true
@@ -36,14 +36,14 @@
 
     if ((typeof jQuery === 'undefined') || (parseFloat(jQuery.fn['jquery']) < 1.7)) {
         loadScript('//ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js', function(){
-          jQueryBopis = jQuery.noConflict(true);
-          jQueryBopis(document).ready(function() {
+          jQueryPreOrder = jQuery.noConflict(true);
+          jQueryPreOrder(document).ready(function() {
               initialisePreOrder();
           });
 
         });
     } else {
-        jQueryBopis = jQuery;
+        jQueryPreOrder = jQuery;
         jQuery(document).ready(function() {
             initialisePreOrder();
         });
@@ -51,8 +51,9 @@
 
     function checkPreOrder (id) {
         return new Promise(function(resolve, reject) {
-            jQueryBopis.ajax({
+            jQueryPreOrder.ajax({
                 type: 'POST',
+                // need to update this endpoint to use correct endpoint for checking the product preorder availability
                 url: `${baseUrl}/api/searchProducts`,
                 data: JSON.stringify({
                     "filters": [ `sku: ${id}` ]
@@ -77,37 +78,35 @@
     async function initialisePreOrder () {
       
         if (location.pathname.includes('products')) {
-            const cartForm = jQueryBopis("form[action='/cart/add']");
+            const cartForm = jQueryPreOrder("form[action='/cart/add']");
             const id = cartForm.serializeArray().find(ele => ele.name === "id").value;
-            const addToCartButton = jQueryBopis("form[action^='/cart/add']:first [type=submit]:visible:first");
-            const ifPreOrderActive = pn.settings.singleProductSettings.some((ele) => {
-                return ele['n'] === id;
-            });
-
+            const addToCartButton = jQueryPreOrder("form[action^='/cart/add']:first [type=submit]:visible:first");
             const sku = meta.product.variants.find(variant => variant.id == id).sku
-            checkPreOrder(sku);
+
+            const ifPreOrderActive = checkPreOrder(sku);
 
             if (ifPreOrderActive) {
-                // addToCart.attr("aria-label","Pre Order");
-                // addToCart.val("Pre Order");
+                // will add Pre Order to the button
                 addToCartButton.html("Pre Order");
-                // addToCartButton.on("click", addToCart.bind(null));
+
+                // will handle the click event on the pre order button
+                addToCartButton.on("click", addToCart.bind(null));
             }
         }
     }
 
     function addToCart(event) {
 
-        let addToCartForm = jQueryBopis("form[action='/cart/add']");
+        let addToCartForm = jQueryPreOrder("form[action='/cart/add']");
 
         event.preventDefault();
         event.stopImmediatePropagation();
 
-        let preOrderProperty = jQueryBopis(`<input id="pre-order-item" name="properties[Note]" value="Pre-Order" type="hidden"/>`)
+        let preOrderProperty = jQueryPreOrder(`<input id="pre-order-item" name="properties[Note]" value="Pre-Order" type="hidden"/>`)
         addToCartForm.append(preOrderProperty)
 
         // using the cart add endpoint to add the product to cart, as using the theme specific methods is not recommended.
-        jQueryBopis.ajax({
+        jQueryPreOrder.ajax({
             type: "POST",
             url: '/cart/add.js',
             data: addToCartForm.serialize(),
