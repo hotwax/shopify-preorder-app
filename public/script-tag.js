@@ -44,7 +44,7 @@
         });
     } else {
         jQueryPreOrder = jQuery;
-        jQuery(document).ready(function() {
+        jQueryPreOrder(document).ready(function() {
             initialisePreOrder();
         });
     }
@@ -64,11 +64,9 @@
                     'Content-Type': 'application/json'
                 },
                 success: function (data) {
-                    console.log(data)
                     resolve(data)
                 },
                 error: function (err) {
-                    console.log(err)
                     reject(err)
                 }
             })
@@ -81,13 +79,16 @@
             const cartForm = jQueryPreOrder("form[action='/cart/add']");
             const id = cartForm.serializeArray().find(ele => ele.name === "id").value;
             const addToCartButton = jQueryPreOrder("form[action^='/cart/add']:first [type=submit]:visible:first");
-            const sku = meta.product.variants.find(variant => variant.id == id).sku
+            const sku = meta.product.variants.find(variant => variant.id == id).sku;
 
             const ifPreOrderActive = checkPreOrder(sku);
 
-            if (ifPreOrderActive) {
+            if (ifPreOrderActive.preOrder) {
                 // will add Pre Order to the button
                 addToCartButton.html("Pre Order");
+
+                // will add a span tag to define the date from when the product starts the shipping
+                addToCartButton.after(`<span>Ships from ${ifPreOrderActive.timestamp}</span>`);
 
                 // will handle the click event on the pre order button
                 addToCartButton.on("click", addToCart.bind(null));
