@@ -87,8 +87,10 @@
                 // will add Pre Order to the button
                 addToCartButton.html("Pre Order");
 
-                // will add a span tag to define the date from when the product starts the shipping
-                addToCartButton.after(`<span>Ships from ${ifPreOrderActive.timestamp}</span>`);
+                // will find for a tag with id hc_preordershipsfrom and if found then add the date to the tag
+                if(jQueryPreOrder("#hc_preordershipsfrom").length > 0) {
+                    jQueryPreOrder("#hc_preordershipsfrom").html(`${ifPreOrderActive.timestamp}`)
+                }
 
                 // will handle the click event on the pre order button
                 addToCartButton.on("click", addToCart.bind(null));
