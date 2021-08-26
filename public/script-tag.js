@@ -81,15 +81,16 @@
             const addToCartButton = jQueryPreOrder("form[action^='/cart/add']:first [type=submit]:visible:first");
             const sku = meta.product.variants.find(variant => variant.id == id).sku;
 
-            const ifPreOrderActive = checkPreOrder(sku);
+            const preOrderDetails = checkPreOrder(sku);
 
-            if (ifPreOrderActive.preOrder) {
+            if (preOrderDetails.preOrder) {
                 // will add Pre Order to the button
                 addToCartButton.html("Pre Order");
 
+                let hcpreorderShipsFrom = jQueryPreOrder("#hc_preordershipsfrom");
                 // will find for a tag with id hc_preordershipsfrom and if found then add the date to the tag
-                if(jQueryPreOrder("#hc_preordershipsfrom").length > 0) {
-                    jQueryPreOrder("#hc_preordershipsfrom").html(`${ifPreOrderActive.timestamp}`)
+                if(hcpreorderShipsFrom.length > 0) {
+                    hcpreorderShipsFrom.html(`${preOrderDetails.timestamp}`)
                 }
 
                 // will handle the click event on the pre order button
