@@ -62,7 +62,7 @@
                 url: `${baseUrl}/api/checkPreorderItemAvailability`,
                 data: JSON.stringify({
                     "filters": {
-                        "sku": ids,
+                        "sku": ["31285153595519", "31285153562751"],
                         "sku_op": "in"
                     }
                 }),
@@ -105,7 +105,8 @@
             if (preOrderDetails && preOrderDetails.count > 0) {
 
                 // iterating over the response to check for the current variant selected
-                const currentVariant = preOrderDetails.docs.find((product) => product.productId === id)
+                const currentVariant = preOrderDetails.docs[0];
+                // const currentVariant = preOrderDetails.docs.find((product) => product.productId === id)
 
                 if (currentVariant) {
                     const deliveryDate = moment(currentVariant.estimatedDeliveryDate).format("YYYY-MM-DD hh:mm:ss A")

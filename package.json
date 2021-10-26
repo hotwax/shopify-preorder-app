@@ -2,7 +2,6 @@
   "name": "shopify-preorder-app",
   "version": "1.0.0",
   "description": "HotWax Commerce shopify preorder app",
-  "main": "public/script-tag.js",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build && npx gulp",

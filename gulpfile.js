@@ -3,8 +3,8 @@ const minify = require("gulp-minify");
 
 function defaultTask() {
     return src([
-        'public/*.js',
-        '!public/*.min.js'
+        'scripts/*.js',
+        '!scripts/*.min.js'
       ])
       .pipe(minify({
         ext: {
@@ -12,6 +12,6 @@ function defaultTask() {
           min: '.min.js'
         }
       }))
-      .pipe(dest('public'));
+      .pipe(dest('scripts'));
 }
 exports.default = defaultTask;
