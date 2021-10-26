@@ -26,7 +26,7 @@
   </ion-page>
 </template>
 
-<script lang="ts">
+<script>
 import {
   IonButton,
   IonContent,
@@ -43,6 +43,7 @@ import { showToast } from "@/utils";
 import { useRouter } from "vue-router";
 import emitter from "@/event-bus"
 import services from "@/services"
+import { getSessionToken } from "@shopify/app-bridge-utils";
 
 export default defineComponent({
   name: "Install",
@@ -58,7 +59,6 @@ export default defineComponent({
   data() {
     return {
       apiKey: process.env.VUE_APP_SHOPIFY_API_KEY,
-      apiSecret: process.env.VUE_APP_SHOPIFY_API_SECRET,
       shopOrigin: 'hc-sandbox.myshopify.com',
       session: this.$route.query['session'],
       hmac: this.$route.query['hmac'],
@@ -70,16 +70,27 @@ export default defineComponent({
     };
   },
   async mounted () {
+    const shop = this.shop || this.shopOrigin
     if (this.session) {
-      this.$router.push("/");
+      const app = createApp({
+        apiKey: this.apiKey,
+        host: this.host
+      });
+      const sessionToken = await getSessionToken(app);
+
+      if (sessionToken) {
+        this.$router.push("/");
+      }
+
     } else if (this.code) {
-      emitter.emit("presentLoader");
-      await services.generateAccessToken({
+      const status = await services.generateAccessToken({
         "code": this.code,
-        "shop": this.shop,
-        "client_id": this.apiKey,
-        "client_secret": this.apiSecret
-      }).then(resp => resp.json()).catch(err => console.warn(err));
+        "shop": shop,
+        "clientId": this.apiKey,
+        "host": this.host,
+        "hmac": this.hmac,
+        "timestamp": this.timestamp
+      }).then(resp => resp.json()).then(data => data.status).catch(err => console.warn(err));
       const appURL = `https://${this.shop}/admin/apps/${this.apiKey}`;
       window.location.assign(appURL);
     } else if (this.shop || this.host) {
@@ -87,10 +98,10 @@ export default defineComponent({
     }
   },
   methods: {
-    install(shopOrigin: any) {
+    install(shopOrigin) {
       this.authorise(shopOrigin, undefined, this.apiKey);
     },
-    authorise(shop: any, host: any, apiKey: any) {
+    authorise(shop, host, apiKey) {
       emitter.emit("presentLoader");
       const redirectUri = process.env.VUE_APP_SHOPIFY_REDIRECT_URI;
       const permissionUrl = `https://${shop}/admin/oauth/authorize?client_id=${apiKey}&scope=read_products,read_content&redirect_uri=${redirectUri}`;
