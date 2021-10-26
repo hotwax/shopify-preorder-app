@@ -79,7 +79,7 @@ export default defineComponent({
       const sessionToken = await getSessionToken(app);
 
       if (sessionToken) {
-        this.$router.push("/");
+        this.$router.push("/home");
       }
 
     } else if (this.code) {
