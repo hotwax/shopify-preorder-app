@@ -102,9 +102,10 @@ export default defineComponent({
       this.authorise(shopOrigin, undefined, this.apiKey);
     },
     authorise(shop, host, apiKey) {
+      const scopes = process.env.VUE_APP_SHOPIFY_SCOPES
       emitter.emit("presentLoader");
       const redirectUri = process.env.VUE_APP_SHOPIFY_REDIRECT_URI;
-      const permissionUrl = `https://${shop}/admin/oauth/authorize?client_id=${apiKey}&scope=read_products,read_content&redirect_uri=${redirectUri}`;
+      const permissionUrl = `https://${shop}/admin/oauth/authorize?client_id=${apiKey}&scope=${scopes}&redirect_uri=${redirectUri}`;
 
       if (window.top == window.self) {
         window.location.assign(permissionUrl);

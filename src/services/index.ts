@@ -2,7 +2,7 @@ import api from '@/api';
 
 const generateAccessToken = async (query: any): Promise <any>  => {
   return api({
-    url: "/getShopifyAccessToken", 
+    url: "/generateShopifyAccessToken",
     method: "post",
     data: query,
     cache: true
