@@ -3,7 +3,7 @@
     <ion-content>
       <!-- Commented form tag as when using it the install page reloads again and
       then redirect to shopify -->
-      <!-- <form> -->
+      <form @keyup.enter="install(shopOrigin)" @submit.prevent="install(shopOrigin)">
         <ion-list>
           <img src="../assets/images/hc.png" />
           <ion-item>
@@ -17,11 +17,11 @@
           </ion-item>
         </ion-list>
         <div class="ion-padding">
-          <ion-button type="submit" expand="block" @click="install(shopOrigin)">
+          <ion-button type="submit" expand="block">
             {{ $t("Install")  }}
           </ion-button>
         </div>
-      <!-- </form> -->
+      </form>
     </ion-content>
   </ion-page>
 </template>
