@@ -90,12 +90,9 @@
             const id = cartForm.serializeArray().find(ele => ele.name === "id").value;
 
             // getting ids for all the variants of the product
-            const variantIds = meta.product.variants.map(variant => variant.id);
+            const variantIds = meta.product.variants.map(variant => String(variant.id));
 
             const addToCartButton = jQueryPreOrder("form[action^='/cart/add']:first [type=submit]:visible:first");
-
-            // need to send sku when connected to dev instance
-            // const sku = meta.product.variants.find(variant => variant.id == id).sku;
 
             // function will return only the products information that are available for preorder
             const preOrderDetails = await checkPreOrder(variantIds).catch(err => console.error(err));
@@ -106,7 +103,7 @@
             if (preOrderDetails && preOrderDetails.count > 0) {
 
                 // iterating over the response to check for the current variant selected
-                const currentVariant = preOrderDetails.docs.find((product) => product.productId === id)
+                const currentVariant = preOrderDetails.docs.find((product) => product.sku === id)
 
                 if (currentVariant) {
                     const deliveryDate = moment.utc(currentVariant.estimatedDeliveryDate)
