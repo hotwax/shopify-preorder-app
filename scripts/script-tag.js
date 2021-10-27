@@ -49,11 +49,6 @@
         });
     }
 
-    // load moment library using cdn link
-    loadScript('https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js', function() {
-        console.log('moment js loaded')
-    })
-
     function checkPreOrder (ids) {
         return new Promise(function(resolve, reject) {
             jQueryPreOrder.ajax({
@@ -84,6 +79,11 @@
     async function initialisePreOrder () {
       
         if (location.pathname.includes('products')) {
+            // load moment library using cdn link
+            loadScript('https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js', function() {
+                console.log('moment js loaded')
+            })
+
             const cartForm = jQueryPreOrder("form[action='/cart/add']");
             //TODO: pass id of all the variant in the preorder API
             const id = cartForm.serializeArray().find(ele => ele.name === "id").value;
@@ -108,14 +108,15 @@
                 const currentVariant = preOrderDetails.docs.find((product) => product.productId === id)
 
                 if (currentVariant) {
-                    const deliveryDate = moment(currentVariant.estimatedDeliveryDate).format("YYYY-MM-DD hh:mm:ss A")
+                    const deliveryDate = moment.utc(currentVariant.estimatedDeliveryDate)
+                    const localDeliveryDate = moment(deliveryDate).local().format("MMM Do YYYY");
 
                     // will add Pre Order to the button
                     addToCartButton.html("Pre Order");
 
                     // will find for a tag with id hc_preordershipsfrom and if found then add the date to the tag
                     if(hcpreorderShipsFrom.length > 0) {
-                        span.html(`${deliveryDate}`)
+                        span.html(`${localDeliveryDate}`)
                     }
 
                     hcpreorderShipsFrom.show();
