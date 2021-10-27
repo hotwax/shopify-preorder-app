@@ -111,7 +111,7 @@ export default defineComponent({
         window.location.assign(permissionUrl);
       } else {
         const app = createApp({
-          apiKey: apiKey,
+          apiKey,
           host,
         });
         Redirect.create(app).dispatch(Redirect.Action.REMOTE, permissionUrl);
