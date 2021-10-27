@@ -42,7 +42,7 @@ import createApp from "@shopify/app-bridge";
 import { showToast } from "@/utils";
 import { useRouter } from "vue-router";
 import emitter from "@/event-bus"
-import services from "@/services"
+import { generateAccessToken } from "@/services"
 import { getSessionToken } from "@shopify/app-bridge-utils";
 
 export default defineComponent({
@@ -83,7 +83,7 @@ export default defineComponent({
       }
 
     } else if (this.code) {
-      const status = await services.generateAccessToken({
+      const status = await generateAccessToken({
         "code": this.code,
         "shop": shop,
         "clientId": this.apiKey,
