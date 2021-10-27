@@ -1,5 +1,5 @@
 
-  (function () {
+(function () {
     let jQueryPreOrder;
 
     this.preOrderCustomConfig = {
@@ -49,14 +49,23 @@
         });
     }
 
-    function checkPreOrder (id) {
+    if (typeof moment === 'undefined') {
+        loadScript('https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js', function() {
+            console.log('moment js loaded')
+        })
+    }
+
+    function checkPreOrder (ids) {
         return new Promise(function(resolve, reject) {
             jQueryPreOrder.ajax({
                 type: 'POST',
                 // need to update this endpoint to use correct endpoint for checking the product preorder availability
-                url: `${baseUrl}/api/searchProducts`,
+                url: `${baseUrl}/api/checkPreorderItemAvailability`,
                 data: JSON.stringify({
-                    "filters": [ `sku: ${id}` ]
+                    "filters": {
+                        "sku": ids,
+                        "sku_op": "in"
+                    }
                 }),
                 dataType: "json",
                 crossDomain: true,
@@ -77,24 +86,45 @@
       
         if (location.pathname.includes('products')) {
             const cartForm = jQueryPreOrder("form[action='/cart/add']");
+            //TODO: pass id of all the variant in the preorder API
             const id = cartForm.serializeArray().find(ele => ele.name === "id").value;
+
+            // getting ids for all the variants of the product
+            const variantIds = meta.product.variants.map(variant => variant.id);
+
             const addToCartButton = jQueryPreOrder("form[action^='/cart/add']:first [type=submit]:visible:first");
-            const sku = meta.product.variants.find(variant => variant.id == id).sku;
 
-            const preOrderDetails = checkPreOrder(sku);
+            // need to send sku when connected to dev instance
+            // const sku = meta.product.variants.find(variant => variant.id == id).sku;
 
-            if (preOrderDetails.preOrder) {
-                // will add Pre Order to the button
-                addToCartButton.html("Pre Order");
+            // function will return only the products information that are available for preorder
+            const preOrderDetails = await checkPreOrder(variantIds).catch(err => console.error(err));
 
-                let hcpreorderShipsFrom = jQueryPreOrder("#hc_preordershipsfrom");
-                // will find for a tag with id hc_preordershipsfrom and if found then add the date to the tag
-                if(hcpreorderShipsFrom.length > 0) {
-                    hcpreorderShipsFrom.html(`${preOrderDetails.timestamp}`)
+            let hcpreorderShipsFrom = jQueryPreOrder("#hc_preordershipsfrom");
+            let span = jQueryPreOrder("#hc_preordershipsfrom span");
+
+            if (preOrderDetails && preOrderDetails.count > 0) {
+
+                // iterating over the response to check for the current variant selected
+                const currentVariant = preOrderDetails.docs.find((product) => product.productId === id)
+
+                if (currentVariant) {
+                    const deliveryDate = moment.utc(currentVariant.estimatedDeliveryDate)
+                    const localDeliveryDate = moment(deliveryDate).local().format("MMM Do YYYY");
+
+                    // will add Pre Order to the button
+                    addToCartButton.html("Pre Order");
+
+                    // will find for a tag with id hc_preordershipsfrom and if found then add the date to the tag
+                    if(hcpreorderShipsFrom.length > 0) {
+                        span.html(`${localDeliveryDate}`)
+                    }
+
+                    hcpreorderShipsFrom.show();
+
+                    // will handle the click event on the pre order button
+                    addToCartButton.on("click", addToCart.bind(null));
                 }
-
-                // will handle the click event on the pre order button
-                addToCartButton.on("click", addToCart.bind(null));
             }
         }
     }
