@@ -49,6 +49,12 @@
         });
     }
 
+    if (typeof moment === 'undefined') {
+        loadScript('https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js', function() {
+            console.log('moment js loaded')
+        })
+    }
+
     function checkPreOrder (ids) {
         return new Promise(function(resolve, reject) {
             jQueryPreOrder.ajax({
@@ -79,11 +85,6 @@
     async function initialisePreOrder () {
       
         if (location.pathname.includes('products')) {
-            // load moment library using cdn link
-            loadScript('https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js', function() {
-                console.log('moment js loaded')
-            })
-
             const cartForm = jQueryPreOrder("form[action='/cart/add']");
             //TODO: pass id of all the variant in the preorder API
             const id = cartForm.serializeArray().find(ele => ele.name === "id").value;
