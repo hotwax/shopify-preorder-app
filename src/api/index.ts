@@ -31,8 +31,7 @@ axios.interceptors.response.use(function (response) {
         // TODO Handle case for failed queue request
         const { status } = error.response;
         if (status === StatusCodes.UNAUTHORIZED) {
-          store.dispatch("user/logout");
-          router.push('/login')
+          // TODO Need to handle the case of status being unauthorized
         }
     }
     // Any status codes that falls outside the range of 2xx cause this function to trigger
