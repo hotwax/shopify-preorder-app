@@ -83,7 +83,8 @@ export default defineComponent({
       }
 
     } else if (this.code) {
-      const status = await generateAccessToken({
+      // TODO store returned status and perform operation based upon it
+      await generateAccessToken({
         "code": this.code,
         "shop": shop,
         "clientId": this.apiKey,
@@ -91,6 +92,7 @@ export default defineComponent({
         "hmac": this.hmac,
         "timestamp": this.timestamp
       }).then(resp => resp.json()).then(data => data.status).catch(err => console.warn(err));
+      // TODO Navigate user based upon the status
       const appURL = `https://${this.shop}/admin/apps/${this.apiKey}`;
       window.location.assign(appURL);
     } else if (this.shop || this.host) {

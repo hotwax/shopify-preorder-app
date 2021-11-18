@@ -2,7 +2,6 @@ import { ActionTree } from 'vuex'
 import RootState from '@/store/RootState'
 import ShopState from './ShopState'
 import * as types from './mutation-types'
-import services from '@/services'
 
 const actions: ActionTree<ShopState, RootState> = {
   setShopToken({ commit }, payload) {
