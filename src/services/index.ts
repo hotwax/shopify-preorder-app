@@ -9,6 +9,6 @@ const generateAccessToken = async (query: any): Promise <any>  => {
   });
 }
 
-export default {
+export {
   generateAccessToken
 }
