@@ -22,3 +22,11 @@ export default defineComponent({
   }
 });
 </script>
+
+<style scoped>
+img {
+  margin-bottom: 25px;
+  padding: 16px;
+  width: 80vh;
+}
+</style>
