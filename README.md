@@ -5,6 +5,8 @@ The app provides functionality to add an item as a pre-order item. It is used to
 
 ## Requirements
 - An endpoint to determine whether the current product is available for pre-order or not.
+- Add the following HTML code on the product page:<p id="hc_preordershipsfrom">ships from <span /></p>.
+- The following shopify access scopes are needed for the app: read_products, read_content, read_themes, write_themes, read_script_tags, write_script_tags
 
 ## Workflow
 - Install the app on the store
