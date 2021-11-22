@@ -92,7 +92,7 @@
             // getting ids for all the variants of the product
             const variantIds = meta.product.variants.map(variant => String(variant.id));
 
-            const addToCartButton = jQueryPreOrder("form[action^='/cart/add']:first [type=submit]:visible:first");
+            const addToCartButton = jQueryPreOrder("form[action^='/cart/add']:first .btn-addtocart");
 
             // function will return only the products information that are available for preorder
             const preOrderDetails = await checkPreOrder(variantIds).catch(err => console.error(err));
