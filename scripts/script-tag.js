@@ -98,6 +98,7 @@
             const preOrderDetails = await checkPreOrder(variantIds).catch(err => console.error(err));
 
             let hcpreorderShipsFrom = jQueryPreOrder("#hc_preordershipsfrom");
+            let span = jQueryPreOrder("#hc_preordershipsfrom span");
 
             if (preOrderDetails && preOrderDetails.count > 0) {
 
@@ -112,11 +113,11 @@
                     addToCartButton.html("Pre Order");
 
                     // will find for a tag with id hc_preordershipsfrom and if found then add the date to the tag
-                    if(hcpreorderShipsFrom) {
-                        hcpreorderShipsFrom.html(`${localDeliveryDate}`)
+                    if(hcpreorderShipsFrom.length > 0) {
+                        span.html(`${localDeliveryDate}`)
                     }
 
-                    hcpreorderShipsFrom.show();
+                    hcpreorderShipsFrom.css('visibility', 'visible');
 
                     // will handle the click event on the pre order button
                     addToCartButton.on("click", addToCart.bind(null));
