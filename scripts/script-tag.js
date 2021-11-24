@@ -92,7 +92,7 @@
             // getting ids for all the variants of the product
             const variantIds = meta.product.variants.map(variant => String(variant.id));
 
-            const addToCartButton = jQueryPreOrder("form[action^='/cart/add']:first .btn-addtocart");
+            const preorderButton = jQueryPreOrder("#hc_preorderButton");
 
             // function will return only the products information that are available for preorder
             const preOrderDetails = await checkPreOrder(variantIds).catch(err => console.error(err));
@@ -110,7 +110,7 @@
                     const localDeliveryDate = moment(deliveryDate).local().format("MMM Do YYYY");
 
                     // will add Pre Order to the button
-                    addToCartButton.html("Pre Order");
+                    preorderButton.html("Pre Order");
 
                     // will find for a tag with id hc_preordershipsfrom and if found then add the date to the tag
                     if(hcpreorderShipsFrom.length > 0) {
@@ -120,7 +120,7 @@
                     hcpreorderShipsFrom.css('visibility', 'visible');
 
                     // will handle the click event on the pre order button
-                    addToCartButton.on("click", addToCart.bind(null));
+                    preorderButton.on("click", addToCart.bind(null));
                 }
             }
         }
