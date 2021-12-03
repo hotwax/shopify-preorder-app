@@ -1,6 +1,7 @@
 
 (function () {
     let jQueryPreOrder;
+    let addToCartLabel;
 
     this.preOrderCustomConfig = {
         'enableCartRedirection': true
@@ -10,6 +11,12 @@
     // let baseUrl = '<@ofbizUrl secure="true"></@ofbizUrl>';
     let baseUrl = 'https://dev-hc.hotwax.io';
     // let baseUrl = 'https://demo-hc.hotwax.io';
+
+    function getAddToCartLabel () {
+        if (location.pathname.includes('products')) {
+            addToCartLabel = jQueryPreOrder("#hc_preorderButton, .hc_preorderButton").html();
+        }
+    }
 
     let loadScript = function(url, callback){
 
@@ -39,6 +46,7 @@
           jQueryPreOrder = jQuery.noConflict(true);
           jQueryPreOrder(document).ready(function() {
               initialisePreOrder();
+              getAddToCartLabel();
           });
 
         });
@@ -46,6 +54,7 @@
         jQueryPreOrder = jQuery;
         jQueryPreOrder(document).ready(function() {
             initialisePreOrder();
+            getAddToCartLabel();
         });
     }
 
@@ -92,13 +101,16 @@
             // getting ids for all the variants of the product
             const variantIds = meta.product.variants.map(variant => String(variant.id));
 
-            const addToCartButton = jQueryPreOrder("form[action^='/cart/add']:first [type=submit]:visible:first");
+            const preorderButton = jQueryPreOrder("#hc_preorderButton, .hc_preorderButton");
 
             // function will return only the products information that are available for preorder
             const preOrderDetails = await checkPreOrder(variantIds).catch(err => console.error(err));
 
             let hcpreorderShipsFrom = jQueryPreOrder("#hc_preordershipsfrom");
             let span = jQueryPreOrder("#hc_preordershipsfrom span");
+
+            hcpreorderShipsFrom.css('visibility', 'hidden');
+            preorderButton.html(addToCartLabel);
 
             if (preOrderDetails && preOrderDetails.count > 0) {
 
@@ -110,17 +122,17 @@
                     const localDeliveryDate = moment(deliveryDate).local().format("MMM Do YYYY");
 
                     // will add Pre Order to the button
-                    addToCartButton.html("Pre Order");
+                    preorderButton.html("Pre Order");
 
                     // will find for a tag with id hc_preordershipsfrom and if found then add the date to the tag
                     if(hcpreorderShipsFrom.length > 0) {
                         span.html(`${localDeliveryDate}`)
                     }
 
-                    hcpreorderShipsFrom.show();
+                    hcpreorderShipsFrom.css('visibility', 'visible');
 
                     // will handle the click event on the pre order button
-                    addToCartButton.on("click", addToCart.bind(null));
+                    preorderButton.on("click", addToCart.bind(null));
                 }
             }
         }
