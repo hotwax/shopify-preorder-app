@@ -115,14 +115,15 @@
             if (preOrderDetails && preOrderDetails.count > 0) {
 
                 // iterating over the response to check for the current variant selected
-                const currentVariant = preOrderDetails.docs.find((product) => product.sku === id)
+                const currentVariant = preOrderDetails.docs.find((product) => product.sku === id && product.estimatedDeliveryDate)
 
                 if (currentVariant) {
                     const deliveryDate = moment.utc(currentVariant.estimatedDeliveryDate)
                     const localDeliveryDate = moment(deliveryDate).local().format("MMM Do YYYY");
+                    const buttonLabel = currentVariant.label === 'PRE-ORDER' ? 'Pre Order' : currentVariant.label === 'BACKORDER' && 'Back Order'
 
                     // will add Pre Order to the button
-                    preorderButton.html("Pre Order");
+                    preorderButton.html(buttonLabel);
 
                     // will find for a tag with id hc_preordershipsfrom and if found then add the date to the tag
                     if(hcpreorderShipsFrom.length > 0) {
@@ -132,7 +133,7 @@
                     hcpreorderShipsFrom.css('visibility', 'visible');
 
                     // will handle the click event on the pre order button
-                    preorderButton.on("click", addToCart.bind(null));
+                    preorderButton.bind("click", {localDeliveryDate: localDeliveryDate}, addToCart);
                 }
             }
         }
@@ -146,7 +147,9 @@
         event.stopImmediatePropagation();
 
         let preOrderProperty = jQueryPreOrder(`<input id="pre-order-item" name="properties[Note]" value="Pre-Order" type="hidden"/>`)
+        let estimatedDeliveryDateProperty = jQueryPreOrder(`<input id="pre-order-item" name="properties[PROMISE_DATE]" value="${event.data.localDeliveryDate}" type="hidden"/>`)
         addToCartForm.append(preOrderProperty)
+        addToCartForm.append(estimatedDeliveryDateProperty)
 
         // using the cart add endpoint to add the product to cart, as using the theme specific methods is not recommended.
         jQueryPreOrder.ajax({
