@@ -133,22 +133,21 @@
                     hcpreorderShipsFrom.css('visibility', 'visible');
 
                     // will handle the click event on the pre order button
-                    preorderButton.bind("click", {localDeliveryDate: localDeliveryDate}, addToCart);
+                    preorderButton.bind("click", { localDeliveryDate, buttonLabel }, addToCart);
                 }
             }
         }
     }
 
     function addToCart(event) {
-
         let addToCartForm = jQueryPreOrder("form[action='/cart/add']");
 
         event.preventDefault();
         event.stopImmediatePropagation();
 
-        let preOrderProperty = jQueryPreOrder(`<input id="pre-order-item" name="properties[Note]" value="Pre-Order" type="hidden"/>`)
+        let orderProperty = jQueryPreOrder(`<input id="pre-order-item" name="properties[Note]" value="${event.data.buttonLabel}" type="hidden"/>`)
         let estimatedDeliveryDateProperty = jQueryPreOrder(`<input id="pre-order-item" name="properties[PROMISE_DATE]" value="${event.data.localDeliveryDate}" type="hidden"/>`)
-        addToCartForm.append(preOrderProperty)
+        addToCartForm.append(orderProperty)
         addToCartForm.append(estimatedDeliveryDateProperty)
 
         // using the cart add endpoint to add the product to cart, as using the theme specific methods is not recommended.
@@ -165,7 +164,8 @@
             }
         })
 
-        preOrderProperty.remove();
+        orderProperty.remove();
+        estimatedDeliveryDateProperty.remove();
     }
 
     // TODO move it to intialise block
