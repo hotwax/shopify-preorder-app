@@ -115,11 +115,12 @@
             if (preOrderDetails && preOrderDetails.count > 0) {
 
                 // iterating over the response to check for the current variant selected
-                const currentVariant = preOrderDetails.docs.find((product) => product.sku === id && product.estimatedDeliveryDate)
+                const currentVariant = preOrderDetails.docs.find((product) => product.sku === id)
 
                 if (currentVariant) {
-                    const deliveryDate = moment.utc(currentVariant.estimatedDeliveryDate)
-                    const localDeliveryDate = moment(deliveryDate).local().format("MMM Do YYYY");
+                    // estimatedDeliveryDate is empty for the backorders 
+                    const deliveryDate = currentVariant.estimatedDeliveryDate ? moment.utc(currentVariant.estimatedDeliveryDate) : ''
+                    const localDeliveryDate = currentVariant.estimatedDeliveryDate ? moment(deliveryDate).local().format("MMM Do YYYY") : '';
                     const buttonLabel = currentVariant.label === 'PRE-ORDER' ? 'Pre Order' : currentVariant.label === 'BACKORDER' && 'Back Order'
 
                     // will add Pre Order to the button
@@ -130,7 +131,10 @@
                         span.html(`${localDeliveryDate}`)
                     }
 
-                    hcpreorderShipsFrom.css('visibility', 'visible');
+                    // estimatedDeliveryDate is empty for the backorders 
+                    if (currentVariant.estimatedDeliveryDate) {
+                        hcpreorderShipsFrom.css('visibility', 'visible');
+                    }
 
                     // will handle the click event on the pre order button
                     preorderButton.bind("click", { localDeliveryDate, buttonLabel }, addToCart);
