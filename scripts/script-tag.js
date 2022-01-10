@@ -1,7 +1,7 @@
-
 (function () {
     let jQueryPreOrder;
     let addToCartLabel;
+    let localDeliveryDate, buttonLabel;
 
     this.preOrderCustomConfig = {
         'enableCartRedirection': true
@@ -9,8 +9,7 @@
 
     // TODO Generate instance specific code URL in FTL. Used with <#noparse> after this code so that `` code is escaped
     // let baseUrl = '<@ofbizUrl secure="true"></@ofbizUrl>';
-    let baseUrl = 'https://dev-hc.hotwax.io';
-    // let baseUrl = 'https://demo-hc.hotwax.io';
+    let baseUrl = '';
 
     function getAddToCartLabel () {
         if (location.pathname.includes('products')) {
@@ -112,6 +111,9 @@
             hcpreorderShipsFrom.css('visibility', 'hidden');
             preorderButton.html(addToCartLabel);
 
+            // removing the click event with handler addToCart
+            preorderButton.off('click', addToCart);
+
             if (preOrderDetails && preOrderDetails.count > 0) {
 
                 // iterating over the response to check for the current variant selected
@@ -120,8 +122,8 @@
                 if (currentVariant) {
                     // estimatedDeliveryDate is empty for the backorders 
                     const deliveryDate = currentVariant.estimatedDeliveryDate ? moment.utc(currentVariant.estimatedDeliveryDate) : ''
-                    const localDeliveryDate = currentVariant.estimatedDeliveryDate ? moment(deliveryDate).local().format("MMM Do YYYY") : '';
-                    const buttonLabel = currentVariant.label === 'PRE-ORDER' ? 'Pre Order' : currentVariant.label === 'BACKORDER' && 'Back Order'
+                    localDeliveryDate = currentVariant.estimatedDeliveryDate ? moment(deliveryDate).local().format("MMM Do YYYY") : '';
+                    buttonLabel = currentVariant.label === 'PRE-ORDER' ? 'Pre Order' : currentVariant.label === 'BACKORDER' && 'Back Order'
 
                     // will add Pre Order to the button
                     preorderButton.html(buttonLabel);
@@ -137,7 +139,7 @@
                     }
 
                     // will handle the click event on the pre order button
-                    preorderButton.bind("click", { localDeliveryDate, buttonLabel }, addToCart);
+                    preorderButton.on("click", addToCart);
                 }
             }
         }
@@ -149,10 +151,12 @@
         event.preventDefault();
         event.stopImmediatePropagation();
 
-        let orderProperty = jQueryPreOrder(`<input id="pre-order-item" name="properties[Note]" value="${event.data.buttonLabel}" type="hidden"/>`)
-        let estimatedDeliveryDateProperty = jQueryPreOrder(`<input id="pre-order-item" name="properties[PROMISE_DATE]" value="${event.data.localDeliveryDate}" type="hidden"/>`)
+        let orderProperty = jQueryPreOrder(`<input id="pre-order-item" name="properties[Note]" value="${buttonLabel}" type="hidden"/>`)
+        let estimatedDeliveryDateProperty = jQueryPreOrder(`<input id="pre-order-item" name="properties[PROMISE_DATE]" value="${localDeliveryDate}" type="hidden"/>`)
+
         addToCartForm.append(orderProperty)
-        addToCartForm.append(estimatedDeliveryDateProperty)
+        // adding promise date to cart only if it's present
+        if (localDeliveryDate) addToCartForm.append(estimatedDeliveryDateProperty)
 
         // using the cart add endpoint to add the product to cart, as using the theme specific methods is not recommended.
         jQueryPreOrder.ajax({
@@ -169,7 +173,7 @@
         })
 
         orderProperty.remove();
-        estimatedDeliveryDateProperty.remove();
+        if (localDeliveryDate) estimatedDeliveryDateProperty.remove();
     }
 
     // TODO move it to intialise block
