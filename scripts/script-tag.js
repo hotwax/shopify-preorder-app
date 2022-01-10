@@ -13,7 +13,7 @@
 
     function getAddToCartLabel () {
         if (location.pathname.includes('products')) {
-            addToCartLabel = jQueryPreOrder("#hc_preorderButton, .hc_preorderButton").html();
+            addToCartLabel = jQueryPreOrder("#hc_preorderButton > span").text();
         }
     }
 
@@ -100,7 +100,7 @@
             // getting ids for all the variants of the product
             const variantIds = meta.product.variants.map(variant => String(variant.id));
 
-            const preorderButton = jQueryPreOrder("#hc_preorderButton, .hc_preorderButton");
+            const preorderButton = jQueryPreOrder("#hc_preorderButton");
 
             // function will return only the products information that are available for preorder
             const preOrderDetails = await checkPreOrder(variantIds).catch(err => console.error(err));
@@ -109,7 +109,7 @@
             let span = jQueryPreOrder("#hc_preordershipsfrom span");
 
             hcpreorderShipsFrom.css('visibility', 'hidden');
-            preorderButton.html(addToCartLabel);
+            preorderButton.text(addToCartLabel);
 
             // removing the click event with handler addToCart
             preorderButton.off('click', addToCart);
@@ -126,7 +126,7 @@
                     buttonLabel = currentVariant.label === 'PRE-ORDER' ? 'Pre Order' : currentVariant.label === 'BACKORDER' && 'Back Order'
 
                     // will add Pre Order to the button
-                    preorderButton.html(buttonLabel);
+                    preorderButton.text(buttonLabel);
 
                     // will find for a tag with id hc_preordershipsfrom and if found then add the date to the tag
                     if(hcpreorderShipsFrom.length > 0) {
