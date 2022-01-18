@@ -9,7 +9,7 @@
 
     // TODO Generate instance specific code URL in FTL. Used with <#noparse> after this code so that `` code is escaped
     // let baseUrl = '<@ofbizUrl secure="true"></@ofbizUrl>';
-    let baseUrl = '';
+    let shopUrl = ''
 
     function getAddToCartLabel () {
         if (location.pathname.includes('products')) {
@@ -57,31 +57,18 @@
         });
     }
 
-    if (typeof moment === 'undefined') {
-        loadScript('https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js', function() {
-            console.log('moment js loaded')
-        })
-    }
-
-    function checkPreOrder (ids) {
+    function getVariantMetafields (virtualId, variantId) {
         return new Promise(function(resolve, reject) {
             jQueryPreOrder.ajax({
-                type: 'POST',
+                type: 'GET',
                 // need to update this endpoint to use correct endpoint for checking the product preorder availability
-                url: `${baseUrl}/api/checkPreorderItemAvailability`,
-                data: JSON.stringify({
-                    "filters": {
-                        "sku": ids,
-                        "sku_op": "in"
-                    }
-                }),
-                dataType: "json",
+                url: `${shopUrl}/admin/products/${virtualId}/variants/${variantId}/metafields.json`,
                 crossDomain: true,
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 success: function (data) {
-                    resolve(data)
+                    resolve(data.metafields)
                 },
                 error: function (err) {
                     reject(err)
@@ -94,16 +81,15 @@
       
         if (location.pathname.includes('products')) {
             const cartForm = jQueryPreOrder("form[action='/cart/add']");
-            //TODO: pass id of all the variant in the preorder API
             const id = cartForm.serializeArray().find(ele => ele.name === "id").value;
-
-            // getting ids for all the variants of the product
-            const variantIds = meta.product.variants.map(variant => String(variant.id));
-
+            // getting virtual product id
+            const virtualId = meta.product.id;
             const preorderButton = jQueryPreOrder("#hc_preorderButton, .hc_preorderButton");
 
             // function will return only the products information that are available for preorder
-            const preOrderDetails = await checkPreOrder(variantIds).catch(err => console.error(err));
+            const metafields = await getVariantMetafields(virtualId, id).catch(err => console.error(err));
+
+            const metafield = metafields.find((metafield) => metafield.namespace === 'PRE_ORDER_DATE' || metafield.namespace === 'BACKORDER_DATE')
 
             let hcpreorderShipsFrom = jQueryPreOrder("#hc_preordershipsfrom");
             let span = jQueryPreOrder("#hc_preordershipsfrom span");
@@ -114,33 +100,27 @@
             // removing the click event with handler addToCart
             preorderButton.off('click', addToCart);
 
-            if (preOrderDetails && preOrderDetails.count > 0) {
+            if (metafield) {
+                localDeliveryDate = metafield.value;
 
-                // iterating over the response to check for the current variant selected
-                const currentVariant = preOrderDetails.docs.find((product) => product.sku === id)
+                // Using different namespace for preorder and backorder but will update it to use single
+                // namespace for the both the things
+                buttonLabel = metafield.namespace === 'PRE_ORDER_DATE' ? 'Pre Order' : metafield.namespace === 'BACKORDER_DATE' && 'Back Order'
 
-                if (currentVariant) {
-                    // estimatedDeliveryDate is empty for the backorders 
-                    const deliveryDate = currentVariant.estimatedDeliveryDate ? moment.utc(currentVariant.estimatedDeliveryDate) : ''
-                    localDeliveryDate = currentVariant.estimatedDeliveryDate ? moment(deliveryDate).local().format("MMM Do YYYY") : '';
-                    buttonLabel = currentVariant.label === 'PRE-ORDER' ? 'Pre Order' : currentVariant.label === 'BACKORDER' && 'Back Order'
+                // will add Pre Order to the button
+                preorderButton.html(buttonLabel);
 
-                    // will add Pre Order to the button
-                    preorderButton.html(buttonLabel);
-
-                    // will find for a tag with id hc_preordershipsfrom and if found then add the date to the tag
-                    if(hcpreorderShipsFrom.length > 0) {
-                        span.html(`${localDeliveryDate}`)
-                    }
-
-                    // estimatedDeliveryDate is empty for the backorders 
-                    if (currentVariant.estimatedDeliveryDate) {
-                        hcpreorderShipsFrom.css('visibility', 'visible');
-                    }
-
-                    // will handle the click event on the pre order button
-                    preorderButton.on("click", addToCart);
+                // will find for a tag with id hc_preordershipsfrom and if found then add the date to the tag
+                if(hcpreorderShipsFrom.length > 0) {
+                    span.html(`${localDeliveryDate}`)
                 }
+
+                if (metafield.value !== '_NA_') {
+                    hcpreorderShipsFrom.css('visibility', 'visible');
+                }
+
+                // will handle the click event on the pre order button
+                preorderButton.on("click", addToCart);
             }
         }
     }
