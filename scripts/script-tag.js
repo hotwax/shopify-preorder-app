@@ -57,6 +57,33 @@
         });
     }
 
+    function isItemAvailableForOrder (virtualId, variantId) {
+        return new Promise(function(resolve, reject) {
+            jQueryPreOrder.ajax({
+                type: 'GET',
+                // need to update this endpoint to use correct endpoint for checking the product preorder availability
+                url: `${shopUrl}/admin/products/${virtualId}.json`,
+                crossDomain: true,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                success: function (data) {
+                    // TODO: check if tags is always a string or an array
+                    if (data.product.tags.includes('preorder')) {
+                        if (data.product.variants.find((variant) => variant.id == variantId).inventory_policy === 'continue')
+                            resolve(true)
+                        else
+                            resolve(false)
+                    }
+                    resolve(false)
+                },
+                error: function (err) {
+                    reject(err)
+                }
+            })
+        })
+    }
+
     function getVariantMetafields (virtualId, variantId) {
         return new Promise(function(resolve, reject) {
             jQueryPreOrder.ajax({
@@ -86,7 +113,10 @@
             const virtualId = meta.product.id;
             const preorderButton = jQueryPreOrder("#hc_preorderButton, .hc_preorderButton");
 
-            // function will return only the products information that are available for preorder
+            const checkItemAvailablity = await isItemAvailableForOrder(virtualId, id).catch(err => console.log(err));
+
+            if (!checkItemAvailablity) return ;
+
             const metafields = await getVariantMetafields(virtualId, id).catch(err => console.error(err));
 
             const metafield = metafields.find((metafield) => metafield.namespace === 'PRE_ORDER_DATE' || metafield.namespace === 'BACKORDER_DATE')
