@@ -69,7 +69,7 @@
                 },
                 success: function (data) {
                     // TODO: check if tags is always a string or an array
-                    if (data.product.tags.includes('preorder')) {
+                    if (data.product.tags.includes('Pre-Order')) {
                         if (data.product.variants.find((variant) => variant.id == variantId).inventory_policy === 'continue')
                             resolve(true)
                         else
@@ -152,6 +152,34 @@
                 // will handle the click event on the pre order button
                 preorderButton.on("click", addToCart);
             }
+        } else {
+            jQueryPreOrder("input[name='tags']").map(async function (index, element) {
+                const preorderButton = jQueryPreOrder(element).siblings("input[type='submit']");
+                preorderButton.val(theme.strings.addToCart)
+                if (jQueryPreOrder(element).val().includes('Pre-Order')) {
+                    const id = jQueryPreOrder(element).siblings("input[name='id']").val();
+                    const virtualId = jQueryPreOrder(element).siblings("input[name='productId']").val();
+                    const checkItemAvailablity = await isItemAvailableForOrder(virtualId, id).catch(err => console.log(err));
+                    if (checkItemAvailablity) {
+                        const metafields = await getVariantMetafields(virtualId, id).catch(err => console.error(err));
+                        const metafield = metafields.find((metafield) => metafield.namespace === 'PRE_ORDER_DATE' || metafield.namespace === 'BACKORDER_DATE')
+
+                        if (metafield) {
+                            localDeliveryDate = metafield.value;
+            
+                            // Using different namespace for preorder and backorder but will update it to use single
+                            // namespace for the both the things
+                            buttonLabel = metafield.namespace === 'PRE_ORDER_DATE' ? 'Pre Order' : metafield.namespace === 'BACKORDER_DATE' && 'Back Order'
+            
+                            // will add Pre Order to the button
+                            preorderButton.val(buttonLabel);
+            
+                            // will handle the click event on the pre order button
+                            preorderButton.on("click", addToCart);
+                        }
+                    }
+                }
+            })
         }
     }
 
