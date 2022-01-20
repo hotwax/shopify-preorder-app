@@ -2,6 +2,7 @@
     let jQueryPreOrder;
     let addToCartLabel;
     let localDeliveryDate, buttonLabel;
+    let productType;
 
     this.preOrderCustomConfig = {
         'enableCartRedirection': true
@@ -69,7 +70,8 @@
                 },
                 success: function (data) {
                     // TODO: check if tags is always a string or an array
-                    if (data.product.tags.includes('preorder')) {
+                    productType = data.product.tags.includes('Pre-Order') ? 'Pre-Order' : data.product.tags.includes('Back-Order') ? 'Back-Order' : ''
+                    if (data.product.tags.includes('Pre-Order') || data.product.tags.includes('Back-Order')) {
                         if (data.product.variants.find((variant) => variant.id == variantId).inventory_policy === 'continue')
                             resolve(true)
                         else
@@ -108,18 +110,18 @@
       
         if (location.pathname.includes('products')) {
             const cartForm = jQueryPreOrder("form[action='/cart/add']");
-            const id = cartForm.serializeArray().find(ele => ele.name === "id").value;
+            const variantId = cartForm.serializeArray().find(ele => ele.name === "id").value;
             // getting virtual product id
             const virtualId = meta.product.id;
             const preorderButton = jQueryPreOrder("#hc_preorderButton, .hc_preorderButton");
 
-            const checkItemAvailablity = await isItemAvailableForOrder(virtualId, id).catch(err => console.log(err));
+            const checkItemAvailablity = await isItemAvailableForOrder(virtualId, variantId).catch(err => console.log(err));
 
             if (!checkItemAvailablity) return ;
 
-            const metafields = await getVariantMetafields(virtualId, id).catch(err => console.error(err));
+            const metafields = await getVariantMetafields(virtualId, variantId).catch(err => console.error(err));
 
-            const metafield = metafields.find((metafield) => metafield.namespace === 'PRE_ORDER_DATE' || metafield.namespace === 'BACKORDER_DATE')
+            const metafield = metafields.find((metafield) => productType === 'Pre-Order' ? metafield.namespace === 'PRE_ORDER_DATE' : metafield.namespace === 'BACKORDER_DATE')
 
             let hcpreorderShipsFrom = jQueryPreOrder("#hc_preordershipsfrom");
             let span = jQueryPreOrder("#hc_preordershipsfrom span");
