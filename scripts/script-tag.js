@@ -2,6 +2,7 @@
     let jQueryPreOrder;
     let addToCartLabel;
     let localDeliveryDate, buttonLabel;
+    let productCardForm;
 
     this.preOrderCustomConfig = {
         'enableCartRedirection': true
@@ -107,6 +108,7 @@
     async function initialisePreOrder () {
       
         if (location.pathname.includes('products')) {
+            productCardForm = '';
             const cartForm = jQueryPreOrder("form[action='/cart/add']");
             const id = cartForm.serializeArray().find(ele => ele.name === "id").value;
             // getting virtual product id
@@ -165,6 +167,7 @@
                         const metafield = metafields.find((metafield) => metafield.namespace === 'PRE_ORDER_DATE' || metafield.namespace === 'BACKORDER_DATE')
 
                         if (metafield) {
+                            productCardForm = jQueryPreOrder(element).parent();
                             localDeliveryDate = metafield.value;
             
                             // Using different namespace for preorder and backorder but will update it to use single
@@ -184,7 +187,7 @@
     }
 
     function addToCart(event) {
-        let addToCartForm = jQueryPreOrder("form[action='/cart/add']");
+        let addToCartForm = productCardForm ? productCardForm : jQueryPreOrder("form[action='/cart/add']");
 
         event.preventDefault();
         event.stopImmediatePropagation();
