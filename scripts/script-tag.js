@@ -10,7 +10,7 @@
 
     // TODO Generate instance specific code URL in FTL. Used with <#noparse> after this code so that `` code is escaped
     // let baseUrl = '<@ofbizUrl secure="true"></@ofbizUrl>';
-    let shopUrl = ''
+    let shopUrl = window.origin;
 
     function getAddToCartLabel () {
         if (location.pathname.includes('products')) {
