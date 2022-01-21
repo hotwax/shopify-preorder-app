@@ -172,6 +172,8 @@
                     // getting the current display variant id and current virtual product id
                     const id = jQueryPreOrder(element).siblings("input[name='id']").val();
                     const virtualId = jQueryPreOrder(element).siblings("input[name='productId']").val();
+
+                    // calling checkItemAvailability to ensure that the continue selling is checked for the product
                     const checkItemAvailablity = await isItemAvailableForOrder(virtualId, id).catch(err => console.log(err));
                     if (checkItemAvailablity) {
                         const metafields = await getVariantMetafields(virtualId, id).catch(err => console.error(err));
