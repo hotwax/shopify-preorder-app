@@ -9,7 +9,8 @@
     };
 
     // TODO Generate instance specific code URL in FTL. Used with <#noparse> after this code so that `` code is escaped
-    let shopUrl = ''
+    // let baseUrl = '<@ofbizUrl secure="true"></@ofbizUrl>';
+    let shopUrl = window.origin;
 
     function getAddToCartLabel () {
         if (location.pathname.includes('products')) {
@@ -112,17 +113,17 @@
             productCardForm = '';
 
             const cartForm = jQueryPreOrder("form[action='/cart/add']");
-            const id = cartForm.serializeArray().find(ele => ele.name === "id").value;
+            const variantId = cartForm.serializeArray().find(ele => ele.name === "id").value;
             // getting virtual product id
             const virtualId = meta.product.id;
             const preorderButton = jQueryPreOrder("#hc_preorderButton, .hc_preorderButton");
 
-            const checkItemAvailablity = await isItemAvailableForOrder(virtualId, id).catch(err => console.log(err));
+            const checkItemAvailablity = await isItemAvailableForOrder(virtualId, variantId).catch(err => console.log(err));
 
             // if the product does not contains specific tag and continue selling is not enabled then not executing the script
             if (!checkItemAvailablity) return ;
 
-            const metafields = await getVariantMetafields(virtualId, id).catch(err => console.error(err));
+            const metafields = await getVariantMetafields(virtualId, variantId).catch(err => console.error(err));
 
             const metafield = metafields.find((metafield) => productType === 'Pre-Order' ? metafield.namespace === 'PRE_ORDER_DATE' : metafield.namespace === 'BACKORDER_DATE')
 
