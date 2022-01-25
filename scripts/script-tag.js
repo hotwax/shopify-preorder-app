@@ -2,7 +2,6 @@
     let jQueryPreOrder;
     let addToCartLabel;
     let localDeliveryDate, buttonLabel;
-    let productType;
 
     this.preOrderCustomConfig = {
         'enableCartRedirection': true
@@ -69,15 +68,9 @@
                     'Content-Type': 'application/json'
                 },
                 success: function (data) {
-                    // TODO: check if tags is always a string or an array
-                    productType = data.product.tags.includes('Pre-Order') ? 'Pre-Order' : data.product.tags.includes('Back-Order') ? 'Back-Order' : ''
                     if (data.product.tags.includes('Pre-Order') || data.product.tags.includes('Back-Order')) {
-                        if (data.product.variants.find((variant) => variant.id == variantId).inventory_policy === 'continue')
-                            resolve(true)
-                        else
-                            resolve(false)
+                        resolve(data.product)
                     }
-                    resolve(false)
                 },
                 error: function (err) {
                     reject(err)
@@ -107,21 +100,14 @@
     }
 
     async function initialisePreOrder () {
-      
         if (location.pathname.includes('products')) {
+
             const cartForm = jQueryPreOrder("form[action='/cart/add']");
             const variantId = cartForm.serializeArray().find(ele => ele.name === "id").value;
             // getting virtual product id
             const virtualId = meta.product.id;
             const preorderButton = jQueryPreOrder("#hc_preorderButton, .hc_preorderButton");
-
-            const checkItemAvailablity = await isItemAvailableForOrder(virtualId, variantId).catch(err => console.log(err));
-
-            if (!checkItemAvailablity) return ;
-
-            const metafields = await getVariantMetafields(virtualId, variantId).catch(err => console.error(err));
-
-            const metafield = metafields.find((metafield) => productType === 'Pre-Order' ? metafield.namespace === 'PRE_ORDER_DATE' : metafield.namespace === 'BACKORDER_DATE')
+            let productType = '';
 
             let hcpreorderShipsFrom = jQueryPreOrder("#hc_preordershipsfrom");
             let span = jQueryPreOrder("#hc_preordershipsfrom span");
@@ -131,6 +117,21 @@
 
             // removing the click event with handler addToCart
             preorderButton.off('click', addToCart);
+
+            const checkItemAvailablity = await isItemAvailableForOrder(virtualId, variantId).then((product) => {
+                // checking what type of tag product contains (Pre-Order / Back-order) and on the basis of that will check for metafield
+                productType = product.tags.includes('Pre-Order') ? 'Pre-Order' : product.tags.includes('Back-Order') ? 'Back-Order' : ''
+
+                // checking if continue selling is enabled for the variant or not
+                return product.variants.find((variant) => variant.id == variantId).inventory_policy === 'continue'
+            }).catch(err => console.log(err));
+
+            // if the product does not contains specific tag and continue selling is not enabled then not executing the script
+            if (!checkItemAvailablity) return ;
+
+            const metafields = await getVariantMetafields(virtualId, variantId).catch(err => console.error(err));
+
+            const metafield = metafields.find((metafield) => productType === 'Pre-Order' ? metafield.namespace === 'PRE_ORDER_DATE' : metafield.namespace === 'BACKORDER_DATE')
 
             if (metafield) {
                 localDeliveryDate = metafield.value;
@@ -147,6 +148,7 @@
                     span.html(`${localDeliveryDate}`)
                 }
 
+                // if the value of the metafield is not _NA_ then only making the date field visible
                 if (metafield.value !== '_NA_') {
                     hcpreorderShipsFrom.css('visibility', 'visible');
                 }
@@ -154,9 +156,86 @@
                 // will handle the click event on the pre order button
                 preorderButton.on("click", addToCart);
             }
+        } else {
+            // this part executes on all the page other than product page
+            // finding an input field with name tags and then iterating over the same
+            jQueryPreOrder("input[name='tags']").map(async function (index, element) {
+
+                const variantTagInput = jQueryPreOrder(element);
+
+                // checking for Pre-Orde or Back-Order tag
+                if (variantTagInput.val().includes('Pre-Order') || variantTagInput.val().includes('Back-Order')) {
+                    // getting the current display variant id and current virtual product id
+                    const variantId = variantTagInput.siblings("input[name='id']").val();
+                    const virtualId = variantTagInput.siblings("input[name='productId']").val();
+
+                    await isItemAvailableForOrder(virtualId, variantId).then(async (product) => {
+                        // checking what type of tag product contains (Pre-Order / Back-order) and on the basis of that will check for metafield
+                        const productType = product.tags.includes('Pre-Order') ? 'Pre-Order' : product.tags.includes('Back-Order') ? 'Back-Order' : ''
+
+                        // checking if continue selling is enabled for the variant or not
+                        const isContinueSellingEnabled = product.variants.find((variant) => variant.id == variantId).inventory_policy === 'continue'
+
+                        if (isContinueSellingEnabled) {
+                            await getVariantMetafields(virtualId, variantId).then((metafields) => {
+                                const metafield = metafields.find((metafield) => productType === 'Pre-Order' ? metafield.namespace === 'PRE_ORDER_DATE' : metafield.namespace === 'BACKORDER_DATE')
+
+                                if (metafield) {
+                                    // finding a button with type submit as the button will be on the same level as the input field so using siblings
+                                    const preorderButton = variantTagInput.siblings("input[type='submit']");
+                                    const cartForm = variantTagInput.parent();
+                                    const date = metafield.value;
+
+                                    // Using different namespace for preorder and backorder but will update it to use single
+                                    // namespace for the both the things
+                                    const label = metafield.namespace === 'PRE_ORDER_DATE' ? 'Pre Order' : metafield.namespace === 'BACKORDER_DATE' && 'Back Order'
+
+                                    // will add Pre Order / Back Order label to the button
+                                    preorderButton.val(label);
+
+                                    // will handle the click event on the pre order button
+                                    preorderButton.on("click", {cartForm, label, date}, addToCartFromProductCard);
+                                }
+                            }).catch(err => console.error(err));
+                        }
+                    }).catch(err => console.log(err));
+                }
+            })
         }
     }
 
+    // defined this method to handle the add to cart event from the product cards
+    function addToCartFromProductCard(event) {
+
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        let orderProperty = jQueryPreOrder(`<input id="pre-order-item" name="properties[Note]" value="${event.data.label}" type="hidden"/>`)
+        let estimatedDeliveryDateProperty = jQueryPreOrder(`<input id="pre-order-item" name="properties[PROMISE_DATE]" value="${event.data.date}" type="hidden"/>`)
+
+        event.data.cartForm.append(orderProperty)
+        // adding promise date to cart only if it's present
+        if (event.data.date) event.data.cartForm.append(estimatedDeliveryDateProperty)
+
+        // using the cart add endpoint to add the product to cart, as using the theme specific methods is not recommended.
+        jQueryPreOrder.ajax({
+            type: "POST",
+            url: '/cart/add.js',
+            data: event.data.cartForm.serialize(),
+            dataType: 'JSON',
+            success: function () {
+                // redirecting the user to the cart page after the product gets added to the cart
+                if (preOrderCustomConfig.enableCartRedirection) {
+                    location.replace('/cart');
+                }
+            }
+        })
+
+        orderProperty.remove();
+        if (event.data.date) estimatedDeliveryDateProperty.remove();
+    }
+
+    // defined this method to handle add to cart from the product detail page
     function addToCart(event) {
         let addToCartForm = jQueryPreOrder("form[action='/cart/add']");
 
