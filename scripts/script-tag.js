@@ -164,18 +164,18 @@
                 // checking for Pre-Orde or Back-Order tag
                 if (jQueryPreOrder(element).val().includes('Pre-Order') || jQueryPreOrder(element).val().includes('Back-Order')) {
                     // getting the current display variant id and current virtual product id
-                    const id = jQueryPreOrder(element).siblings("input[name='id']").val();
+                    const variantId = jQueryPreOrder(element).siblings("input[name='id']").val();
                     const virtualId = jQueryPreOrder(element).siblings("input[name='productId']").val();
 
-                    await isItemAvailableForOrder(virtualId, id).then(async (product) => {
+                    await isItemAvailableForOrder(virtualId, variantId).then(async (product) => {
                         // checking what type of tag product contains (Pre-Order / Back-order) and on the basis of that will check for metafield
                         const productType = product.tags.includes('Pre-Order') ? 'Pre-Order' : product.tags.includes('Back-Order') ? 'Back-Order' : ''
 
                         // checking if continue selling is enabled for the variant or not
-                        const checkItemAvailablity = product.variants.find((variant) => variant.id == id).inventory_policy === 'continue'
+                        const checkItemAvailablity = product.variants.find((variant) => variant.id == variantId).inventory_policy === 'continue'
 
                         if (checkItemAvailablity) {
-                            await getVariantMetafields(virtualId, id).then((metafields) => {
+                            await getVariantMetafields(virtualId, variantId).then((metafields) => {
                                 const metafield = metafields.find((metafield) => productType === 'Pre-Order' ? metafield.namespace === 'PRE_ORDER_DATE' : metafield.namespace === 'BACKORDER_DATE')
 
                                 if (metafield) {
@@ -188,14 +188,13 @@
                                     // namespace for the both the things
                                     const label = metafield.namespace === 'PRE_ORDER_DATE' ? 'Pre Order' : metafield.namespace === 'BACKORDER_DATE' && 'Back Order'
 
-                                    // will add Pre Order to the button
+                                    // will add Pre Order / Back Order label to the button
                                     preorderButton.val(label);
 
                                     // will handle the click event on the pre order button
-                                  preorderButton.on("click", {cartForm, label, date}, addToCartFromProductCard);
+                                    preorderButton.on("click", {cartForm, label, date}, addToCartFromProductCard);
                                 }
                             }).catch(err => console.error(err));
-
                         }
                     }).catch(err => console.log(err));
                 }
@@ -203,6 +202,7 @@
         }
     }
 
+    // defined this method to handle the add to cart event from the product cards
     function addToCartFromProductCard(event) {
 
         event.preventDefault();
@@ -233,6 +233,7 @@
         if (event.data.date) estimatedDeliveryDateProperty.remove();
     }
 
+    // defined this method to handle add to cart from the product detail page
     function addToCart(event) {
         let addToCartForm = jQueryPreOrder("form[action='/cart/add']");
 
