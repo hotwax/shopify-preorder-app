@@ -192,7 +192,7 @@
                                     preorderButton.val(label);
 
                                     // will handle the click event on the pre order button
-                                    preorderButton.on("click", addToCartFromProductCard.bind(null, cartForm, label, date));
+                                  preorderButton.on("click", {cartForm, label, date}, addToCartFromProductCard);
                                 }
                             }).catch(err => console.error(err));
 
@@ -203,23 +203,23 @@
         }
     }
 
-    function addToCartFromProductCard(event, cartForm, label, date) {
+    function addToCartFromProductCard(event) {
 
         event.preventDefault();
         event.stopImmediatePropagation();
 
-        let orderProperty = jQueryPreOrder(`<input id="pre-order-item" name="properties[Note]" value="${label}" type="hidden"/>`)
-        let estimatedDeliveryDateProperty = jQueryPreOrder(`<input id="pre-order-item" name="properties[PROMISE_DATE]" value="${date}" type="hidden"/>`)
+        let orderProperty = jQueryPreOrder(`<input id="pre-order-item" name="properties[Note]" value="${event.data.label}" type="hidden"/>`)
+        let estimatedDeliveryDateProperty = jQueryPreOrder(`<input id="pre-order-item" name="properties[PROMISE_DATE]" value="${event.data.date}" type="hidden"/>`)
 
-        cartForm.append(orderProperty)
+        event.data.cartForm.append(orderProperty)
         // adding promise date to cart only if it's present
-        if (date) cartForm.append(estimatedDeliveryDateProperty)
+        if (event.data.date) event.data.cartForm.append(estimatedDeliveryDateProperty)
 
         // using the cart add endpoint to add the product to cart, as using the theme specific methods is not recommended.
         jQueryPreOrder.ajax({
             type: "POST",
             url: '/cart/add.js',
-            data: cartForm.serialize(),
+            data: event.data.cartForm.serialize(),
             dataType: 'JSON',
             success: function () {
                 // redirecting the user to the cart page after the product gets added to the cart
@@ -230,7 +230,7 @@
         })
 
         orderProperty.remove();
-        if (date) estimatedDeliveryDateProperty.remove();
+        if (event.data.date) estimatedDeliveryDateProperty.remove();
     }
 
     function addToCart(event) {
