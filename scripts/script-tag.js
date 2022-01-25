@@ -161,27 +161,29 @@
             // finding an input field with name tags and then iterating over the same
             jQueryPreOrder("input[name='tags']").map(async function (index, element) {
 
+                const variantTagInput = jQueryPreOrder(element);
+
                 // checking for Pre-Orde or Back-Order tag
-                if (jQueryPreOrder(element).val().includes('Pre-Order') || jQueryPreOrder(element).val().includes('Back-Order')) {
+                if (variantTagInput.val().includes('Pre-Order') || variantTagInput.val().includes('Back-Order')) {
                     // getting the current display variant id and current virtual product id
-                    const variantId = jQueryPreOrder(element).siblings("input[name='id']").val();
-                    const virtualId = jQueryPreOrder(element).siblings("input[name='productId']").val();
+                    const variantId = variantTagInput.siblings("input[name='id']").val();
+                    const virtualId = variantTagInput.siblings("input[name='productId']").val();
 
                     await isItemAvailableForOrder(virtualId, variantId).then(async (product) => {
                         // checking what type of tag product contains (Pre-Order / Back-order) and on the basis of that will check for metafield
                         const productType = product.tags.includes('Pre-Order') ? 'Pre-Order' : product.tags.includes('Back-Order') ? 'Back-Order' : ''
 
                         // checking if continue selling is enabled for the variant or not
-                        const checkItemAvailablity = product.variants.find((variant) => variant.id == variantId).inventory_policy === 'continue'
+                        const isContinueSellingEnabled = product.variants.find((variant) => variant.id == variantId).inventory_policy === 'continue'
 
-                        if (checkItemAvailablity) {
+                        if (isContinueSellingEnabled) {
                             await getVariantMetafields(virtualId, variantId).then((metafields) => {
                                 const metafield = metafields.find((metafield) => productType === 'Pre-Order' ? metafield.namespace === 'PRE_ORDER_DATE' : metafield.namespace === 'BACKORDER_DATE')
 
                                 if (metafield) {
                                     // finding a button with type submit as the button will be on the same level as the input field so using siblings
-                                    const preorderButton = jQueryPreOrder(element).siblings("input[type='submit']");
-                                    const cartForm = jQueryPreOrder(element).parent();
+                                    const preorderButton = variantTagInput.siblings("input[type='submit']");
+                                    const cartForm = variantTagInput.parent();
                                     const date = metafield.value;
 
                                     // Using different namespace for preorder and backorder but will update it to use single
