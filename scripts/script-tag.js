@@ -109,6 +109,15 @@
             const preorderButton = jQueryPreOrder("#hc_preorderButton, .hc_preorderButton");
             let productType = '';
 
+            let hcpreorderShipsFrom = jQueryPreOrder("#hc_preordershipsfrom");
+            let span = jQueryPreOrder("#hc_preordershipsfrom span");
+
+            hcpreorderShipsFrom.css('visibility', 'hidden');
+            preorderButton.html(addToCartLabel);
+
+            // removing the click event with handler addToCart
+            preorderButton.off('click', addToCart);
+
             const checkItemAvailablity = await isItemAvailableForOrder(virtualId, variantId).then((product) => {
                 // checking what type of tag product contains (Pre-Order / Back-order) and on the basis of that will check for metafield
                 productType = product.tags.includes('Pre-Order') ? 'Pre-Order' : product.tags.includes('Back-Order') ? 'Back-Order' : ''
@@ -123,15 +132,6 @@
             const metafields = await getVariantMetafields(virtualId, variantId).catch(err => console.error(err));
 
             const metafield = metafields.find((metafield) => productType === 'Pre-Order' ? metafield.namespace === 'PRE_ORDER_DATE' : metafield.namespace === 'BACKORDER_DATE')
-
-            let hcpreorderShipsFrom = jQueryPreOrder("#hc_preordershipsfrom");
-            let span = jQueryPreOrder("#hc_preordershipsfrom span");
-
-            hcpreorderShipsFrom.css('visibility', 'hidden');
-            preorderButton.html(addToCartLabel);
-
-            // removing the click event with handler addToCart
-            preorderButton.off('click', addToCart);
 
             if (metafield) {
                 localDeliveryDate = metafield.value;
