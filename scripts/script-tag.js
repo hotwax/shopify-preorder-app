@@ -148,8 +148,8 @@
                     span.html(`${localDeliveryDate}`)
                 }
 
-                // if the value of the metafield is not _NA_ then only making the date field visible
-                if (metafield.value !== '_NA_') {
+                // if the value of the metafield is not _NA_ and NULL then only making the date field visible
+                if (localDeliveryDate && localDeliveryDate !== 'NULL' && localDeliveryDate !== '_NA_') {
                     hcpreorderShipsFrom.css('visibility', 'visible');
                 }
 
@@ -215,7 +215,7 @@
 
         event.data.cartForm.append(orderProperty)
         // adding promise date to cart only if it's present
-        if (event.data.date) event.data.cartForm.append(estimatedDeliveryDateProperty)
+        if (event.data.date && event.data.date !== 'NULL' && event.data.date !== '_NA_') event.data.cartForm.append(estimatedDeliveryDateProperty)
 
         // using the cart add endpoint to add the product to cart, as using the theme specific methods is not recommended.
         jQueryPreOrder.ajax({
@@ -232,7 +232,7 @@
         })
 
         orderProperty.remove();
-        if (event.data.date) estimatedDeliveryDateProperty.remove();
+        if (event.data.date && event.data.date !== 'NULL' && event.data.date !== '_NA_') estimatedDeliveryDateProperty.remove();
     }
 
     // defined this method to handle add to cart from the product detail page
@@ -247,7 +247,7 @@
 
         addToCartForm.append(orderProperty)
         // adding promise date to cart only if it's present
-        if (localDeliveryDate) addToCartForm.append(estimatedDeliveryDateProperty)
+        if (localDeliveryDate && localDeliveryDate !== 'NULL' && localDeliveryDate !== '_NA_') addToCartForm.append(estimatedDeliveryDateProperty)
 
         // using the cart add endpoint to add the product to cart, as using the theme specific methods is not recommended.
         jQueryPreOrder.ajax({
@@ -264,7 +264,7 @@
         })
 
         orderProperty.remove();
-        if (localDeliveryDate) estimatedDeliveryDateProperty.remove();
+        if (localDeliveryDate && localDeliveryDate !== 'NULL' && localDeliveryDate !== '_NA_') estimatedDeliveryDateProperty.remove();
     }
 
     // TODO move it to intialise block
