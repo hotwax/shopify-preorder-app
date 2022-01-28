@@ -184,7 +184,8 @@
 
                                 if (metafield) {
                                     // finding a button with type submit as the button will be on the same level as the input field so using siblings
-                                    const preorderButton = variantTagInput.siblings("input[type='submit']");
+                                    const preorderButton = variantTagInput.siblings(".hc_preorderButton");
+
                                     const cartForm = variantTagInput.parent();
                                     const date = metafield.value;
 
@@ -193,7 +194,7 @@
                                     const label = metafield.namespace === 'PRE_ORDER_DATE' ? 'Pre Order' : metafield.namespace === 'BACKORDER_DATE' && 'Back Order'
 
                                     // will add Pre Order / Back Order label to the button
-                                    preorderButton.val(label);
+                                    preorderButton.text(label);
 
                                     // will handle the click event on the pre order button
                                     preorderButton.on("click", {cartForm, label, date}, addToCartFromProductCard);
