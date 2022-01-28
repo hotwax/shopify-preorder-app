@@ -117,6 +117,7 @@
 
             // removing the click event with handler addToCart
             preorderButton.off('click', addToCart);
+            preorderButton.siblings().css('display', 'block');
 
             const checkItemAvailablity = await isItemAvailableForOrder(virtualId, variantId).then((product) => {
                 // checking what type of tag product contains (Pre-Order / Back-order) and on the basis of that will check for metafield
@@ -134,6 +135,7 @@
             const metafield = metafields.find((metafield) => productType === 'Pre-Order' ? metafield.namespace === 'PRE_ORDER_DATE' : metafield.namespace === 'BACKORDER_DATE')
 
             if (metafield) {
+                preorderButton.siblings().css('display', 'none');
                 localDeliveryDate = metafield.value;
 
                 // Using different namespace for preorder and backorder but will update it to use single

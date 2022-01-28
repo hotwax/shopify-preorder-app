@@ -1,0 +1,6 @@
+---
+title: 'Added: styling to hide the siblings of the addToCart button when preorder is enabled'
+ticket_id: "#1z55bnm"
+merge_request: 24
+author: Yash Maheshwari
+type: added
