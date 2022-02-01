@@ -59,6 +59,7 @@
                 if (data.tags.includes('Pre-Order') || data.tags.includes('Back-Order')) {
                     resolve(data)
                 }
+                reject(false)
             })
         })
     }
@@ -88,7 +89,7 @@
 
                 // checking if continue selling is enabled for the variant or not
                 return product.variants.find((variant) => variant.id == variantId).available
-            }).catch(err => console.log(err));
+            }).catch(err => err);
 
             // if the product does not contains specific tag and continue selling is not enabled then not executing the script
             if (!checkItemAvailablity) return ;
