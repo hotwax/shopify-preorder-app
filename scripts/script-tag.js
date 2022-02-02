@@ -110,12 +110,14 @@
 
             // will find for a tag with id hc_preordershipsfrom and if found then add the date to the tag
             if(hcpreorderShipsFrom.length > 0) {
-                span.html(`${localDeliveryDate}`)
-            }
-
-            // if the value of the metafield is not _NA_ and NULL then only making the date field visible
-            if (localDeliveryDate && localDeliveryDate !== 'NULL' && localDeliveryDate !== '_NA_' && localDeliveryDate !== 'N/A') {
-                hcpreorderShipsFrom.css('visibility', 'visible');
+                // if the value of the metafield is not _NA_ and NULL then only making the date field visible
+                if (localDeliveryDate && localDeliveryDate !== 'NULL' && localDeliveryDate !== '_NA_' && localDeliveryDate !== 'N/A') {
+                    span.html(`${localDeliveryDate}`)
+                    hcpreorderShipsFrom.css('visibility', 'visible');
+                } else if (productType === 'Back-Order'){
+                    hcpreorderShipsFrom.css('visibility', 'visible');
+                    localDeliveryDate = span.text();
+                }
             }
 
             // will handle the click event on the pre order button
@@ -141,7 +143,7 @@
                         // finding a button with type submit as the button will be on the same level as the input field so using siblings
                         const preorderButton = variantTagInput.siblings("#hc_preorderButton");
                         const cartForm = variantTagInput.parent();
-                        const date = productType === 'Pre-Order' ? preOrderDate : productType === 'Back-Order' && backOrderDate;
+                        let date = productType === 'Pre-Order' ? preOrderDate : productType === 'Back-Order' && backOrderDate;
 
                         // Using different namespace for preorder and backorder but will update it to use single
                         // namespace for the both the things
@@ -149,6 +151,11 @@
 
                         // will add Pre Order / Back Order label to the button
                         preorderButton.val(label);
+
+                        if ((!date || date == '_NA_' || date == 'NULL') && productType === 'Back-Order') {
+                            // for now hardcoded the string but need to find a way to make it dynamic
+                            date = 'Usually ships in 2-3 weeks';
+                        }
 
                         // will handle the click event on the pre order button
                         preorderButton.on("click", {cartForm, label, date}, addToCartFromProductCard);
