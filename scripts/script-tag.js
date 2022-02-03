@@ -98,6 +98,13 @@
 
             localDeliveryDate = productType === 'Pre-Order' ? preOrderDate : productType === 'Back-Order' && backOrderDate;
 
+            // if the date is of past then making it empty
+            let now = new Date();
+            now.setHours(0, 0, 0, 0)
+            if (new Date(localDeliveryDate) < now) {
+                localDeliveryDate = '';
+            }
+
             preorderButton.siblings().css('display', 'none');
 
             // Using different namespace for preorder and backorder but will update it to use single
@@ -144,6 +151,13 @@
                         const preorderButton = variantTagInput.siblings("#hc_preorderButton, .hc_preorderButton");
                         const cartForm = variantTagInput.parent();
                         let date = productType === 'Pre-Order' ? preOrderDate : productType === 'Back-Order' && backOrderDate;
+
+                        // if the date is of past then making it empty
+                        let now = new Date();
+                        now.setHours(0, 0, 0, 0)
+                        if (new Date(date) < now) {
+                            date = '';
+                        }
 
                         // Using different namespace for preorder and backorder but will update it to use single
                         // namespace for the both the things
