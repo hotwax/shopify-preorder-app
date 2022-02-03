@@ -1,0 +1,6 @@
+---
+title: 'Added: a check for past date and hide date if it''s of past'
+ticket_id: "#20d336r"
+merge_request: 28
+author: Yash Maheshwari
+type: added
