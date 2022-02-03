@@ -38,18 +38,17 @@
 
     if ((typeof jQuery === 'undefined') || (parseFloat(jQuery.fn['jquery']) < 1.7)) {
         loadScript('//ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js', function(){
-          jQueryPreOrder = jQuery.noConflict(true);
-          jQueryPreOrder(document).ready(function() {
-              initialisePreOrder();
-              getAddToCartLabel();
-          });
-
+            jQueryPreOrder = jQuery.noConflict(true);
+            jQueryPreOrder(document).ready(function() {
+                getAddToCartLabel();
+                initialisePreOrder();
+            });
         });
     } else {
         jQueryPreOrder = jQuery;
         jQueryPreOrder(document).ready(function() {
-            initialisePreOrder();
             getAddToCartLabel();
+            initialisePreOrder();
         });
     }
 
@@ -110,12 +109,15 @@
 
             // will find for a tag with id hc_preordershipsfrom and if found then add the date to the tag
             if(hcpreorderShipsFrom.length > 0) {
-                span.html(`${localDeliveryDate}`)
-            }
-
-            // if the value of the metafield is not _NA_ then only making the date field visible
-            if (localDeliveryDate) {
-                hcpreorderShipsFrom.css('visibility', 'visible');
+                // if the value of the metafield is not _NA_ and NULL then only making the date field visible
+                if (localDeliveryDate && localDeliveryDate !== 'NULL' && localDeliveryDate !== '_NA_') {
+                    span.html(`${localDeliveryDate}`)
+                    hcpreorderShipsFrom.css('visibility', 'visible');
+                } else if (productType === 'Back-Order' && jQueryPreOrder(".hc_backorderString")){
+                    hcpreorderShipsFrom.css('visibility', 'visible');
+                    localDeliveryDate = jQueryPreOrder(".hc_backorderString").text();
+                    span.html(`${localDeliveryDate}`)
+                }
             }
 
             // will handle the click event on the pre order button
@@ -139,9 +141,9 @@
                     if (continueSelling && continueSelling == 'true') {
 
                         // finding a button with type submit as the button will be on the same level as the input field so using siblings
-                        const preorderButton = variantTagInput.siblings("#hc_preorderButton");
+                        const preorderButton = variantTagInput.siblings("#hc_preorderButton, .hc_preorderButton");
                         const cartForm = variantTagInput.parent();
-                        const date = productType === 'Pre-Order' ? preOrderDate : productType === 'Back-Order' && backOrderDate;
+                        let date = productType === 'Pre-Order' ? preOrderDate : productType === 'Back-Order' && backOrderDate;
 
                         // Using different namespace for preorder and backorder but will update it to use single
                         // namespace for the both the things
@@ -149,6 +151,10 @@
 
                         // will add Pre Order / Back Order label to the button
                         preorderButton.val(label);
+
+                        if ((!date || date == '_NA_' || date == 'NULL') && productType === 'Back-Order' && jQueryPreOrder(".hc_backorderString")) {
+                            date = jQueryPreOrder(".hc_backorderString").text();
+                        }
 
                         // will handle the click event on the pre order button
                         preorderButton.on("click", {cartForm, label, date}, addToCartFromProductCard);
@@ -169,7 +175,7 @@
 
         event.data.cartForm.append(orderProperty)
         // adding promise date to cart only if it's present
-        if (event.data.date) event.data.cartForm.append(estimatedDeliveryDateProperty)
+        if (event.data.date && event.data.date !== 'NULL' && event.data.date !== '_NA_') event.data.cartForm.append(estimatedDeliveryDateProperty)
 
         // using the cart add endpoint to add the product to cart, as using the theme specific methods is not recommended.
         jQueryPreOrder.ajax({
@@ -186,7 +192,7 @@
         })
 
         orderProperty.remove();
-        if (event.data.date) estimatedDeliveryDateProperty.remove();
+        if (event.data.date && event.data.date !== 'NULL' && event.data.date !== '_NA_') estimatedDeliveryDateProperty.remove();
     }
 
     // defined this method to handle add to cart from the product detail page
@@ -201,7 +207,7 @@
 
         addToCartForm.append(orderProperty)
         // adding promise date to cart only if it's present
-        if (localDeliveryDate) addToCartForm.append(estimatedDeliveryDateProperty)
+        if (localDeliveryDate && localDeliveryDate !== 'NULL' && localDeliveryDate !== '_NA_') addToCartForm.append(estimatedDeliveryDateProperty)
 
         // using the cart add endpoint to add the product to cart, as using the theme specific methods is not recommended.
         jQueryPreOrder.ajax({
@@ -218,7 +224,7 @@
         })
 
         orderProperty.remove();
-        if (localDeliveryDate) estimatedDeliveryDateProperty.remove();
+        if (localDeliveryDate && localDeliveryDate !== 'NULL' && localDeliveryDate !== '_NA_') estimatedDeliveryDateProperty.remove();
     }
 
     // TODO move it to intialise block

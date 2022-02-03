@@ -1,0 +1,7 @@
+---
+title: 'Added: check for promise date and if present then only adding it to the cart
+  or adding fallback string for backorder'
+ticket_id: "#1vxprwd"
+merge_request: 25
+author: Yash Maheshwari
+type: added
