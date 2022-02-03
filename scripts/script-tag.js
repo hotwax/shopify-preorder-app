@@ -110,13 +110,13 @@
             // will find for a tag with id hc_preordershipsfrom and if found then add the date to the tag
             if(hcpreorderShipsFrom.length > 0) {
                 // if the value of the metafield is not _NA_ and NULL then only making the date field visible
-                if (localDeliveryDate && localDeliveryDate !== 'NULL' && localDeliveryDate !== '_NA_' && localDeliveryDate !== 'N/A') {
+                if (localDeliveryDate && localDeliveryDate !== 'NULL' && localDeliveryDate !== '_NA_') {
                     span.html(`${localDeliveryDate}`)
                     hcpreorderShipsFrom.css('visibility', 'visible');
                 } else if (productType === 'Back-Order' && jQueryPreOrder(".hc_backorderString")){
                     hcpreorderShipsFrom.css('visibility', 'visible');
                     localDeliveryDate = jQueryPreOrder(".hc_backorderString").text();
-                  	span.html(`${localDeliveryDate}`)
+                    span.html(`${localDeliveryDate}`)
                 }
             }
 
