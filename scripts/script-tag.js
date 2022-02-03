@@ -38,18 +38,17 @@
 
     if ((typeof jQuery === 'undefined') || (parseFloat(jQuery.fn['jquery']) < 1.7)) {
         loadScript('//ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js', function(){
-          jQueryPreOrder = jQuery.noConflict(true);
-          jQueryPreOrder(document).ready(function() {
-              initialisePreOrder();
-              getAddToCartLabel();
-          });
-
+            jQueryPreOrder = jQuery.noConflict(true);
+            jQueryPreOrder(document).ready(function() {
+                getAddToCartLabel();
+                initialisePreOrder();
+            });
         });
     } else {
         jQueryPreOrder = jQuery;
         jQueryPreOrder(document).ready(function() {
-            initialisePreOrder();
             getAddToCartLabel();
+            initialisePreOrder();
         });
     }
 
@@ -114,9 +113,10 @@
                 if (localDeliveryDate && localDeliveryDate !== 'NULL' && localDeliveryDate !== '_NA_' && localDeliveryDate !== 'N/A') {
                     span.html(`${localDeliveryDate}`)
                     hcpreorderShipsFrom.css('visibility', 'visible');
-                } else if (productType === 'Back-Order'){
+                } else if (productType === 'Back-Order' && jQueryPreOrder(".hc_backorderString")){
                     hcpreorderShipsFrom.css('visibility', 'visible');
-                    localDeliveryDate = span.text();
+                    localDeliveryDate = jQueryPreOrder(".hc_backorderString").text();
+                  	span.html(`${localDeliveryDate}`)
                 }
             }
 
@@ -141,7 +141,7 @@
                     if (continueSelling && continueSelling == 'true') {
 
                         // finding a button with type submit as the button will be on the same level as the input field so using siblings
-                        const preorderButton = variantTagInput.siblings("#hc_preorderButton");
+                        const preorderButton = variantTagInput.siblings("#hc_preorderButton, .hc_preorderButton");
                         const cartForm = variantTagInput.parent();
                         let date = productType === 'Pre-Order' ? preOrderDate : productType === 'Back-Order' && backOrderDate;
 
@@ -152,9 +152,8 @@
                         // will add Pre Order / Back Order label to the button
                         preorderButton.val(label);
 
-                        if ((!date || date == '_NA_' || date == 'NULL') && productType === 'Back-Order') {
-                            // for now hardcoded the string but need to find a way to make it dynamic
-                            date = 'Usually ships in 2-3 weeks';
+                        if ((!date || date == '_NA_' || date == 'NULL') && productType === 'Back-Order' && jQueryPreOrder(".hc_backorderString")) {
+                            date = jQueryPreOrder(".hc_backorderString").text();
                         }
 
                         // will handle the click event on the pre order button
