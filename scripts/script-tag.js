@@ -92,11 +92,13 @@
 
             if (jQueryPreOrder("input[id='hc_inventory']").val() > 0) checkItemAvailablity = false;
 
+            if (Object.entries(hc_inventory_policy).find(([key, value]) => key == variantId)[1] != "continue") checkItemAvailablity = false;
+
             // if the product does not contains specific tag and continue selling is not enabled then not executing the script
             if (!checkItemAvailablity) return ;
 
-            const backOrderDate = jQueryPreOrder("input[id='hc_backOrderDate']").val();
-            const preOrderDate = jQueryPreOrder("input[id='hc_preOrderDate']").val();
+            const backOrderDate = Object.entries(hc_metaFieldsData).find(([key, value]) => key == variantId)[1][0]
+            const preOrderDate = Object.entries(hc_metaFieldsData).find(([key, value]) => key == variantId)[1][1]
 
             localDeliveryDate = productType === 'Pre-Order' ? preOrderDate : productType === 'Back-Order' && backOrderDate;
 
