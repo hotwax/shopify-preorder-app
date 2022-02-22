@@ -82,13 +82,15 @@
             preorderButton.off('click', addToCart);
             preorderButton.siblings().css('display', 'block');
 
-            const checkItemAvailablity = await isItemAvailableForOrder().then((product) => {
+            let checkItemAvailablity = await isItemAvailableForOrder().then((product) => {
                 // checking what type of tag product contains (Pre-Order / Back-order) and on the basis of that will check for metafield
                 productType = product.tags.includes('Pre-Order') ? 'Pre-Order' : product.tags.includes('Back-Order') ? 'Back-Order' : ''
 
                 // checking if continue selling is enabled for the variant or not
                 return product.variants.find((variant) => variant.id == variantId).available
             }).catch(err => err);
+
+            if (jQueryPreOrder("input[id='hc_inventory']").val() > 0) checkItemAvailablity = false;
 
             // if the product does not contains specific tag and continue selling is not enabled then not executing the script
             if (!checkItemAvailablity) return ;
@@ -120,13 +122,13 @@
                 if (localDeliveryDate && localDeliveryDate !== 'NULL' && localDeliveryDate !== '_NA_') {
                     span.html(`${localDeliveryDate}`)
                     hcpreorderShipsFrom.css('visibility', 'visible');
-                } else if (productType === 'Back-Order' && jQueryPreOrder(".hc_backorderString")){
+                } else if (productType === 'Back-Order' && jQueryPreOrder(".hc_backorderString").length){
                     hcpreorderShipsFrom.css('visibility', 'visible');
                     localDeliveryDate = jQueryPreOrder(".hc_backorderString").text();
                     span.html(`${localDeliveryDate}`)
                 }
             }
-
+            preorderButton.off('click')
             // will handle the click event on the pre order button
             preorderButton.on("click", addToCart);
         } else {
@@ -142,10 +144,11 @@
                     const backOrderDate = variantTagInput.siblings("input[id=hc_backOrderDate]").val()
                     const preOrderDate = variantTagInput.siblings("input[id=hc_preOrderDate]").val()
                     const continueSelling = variantTagInput.siblings("input[id=hc_continueSelling]").val()
+                    const variantInventory = variantTagInput.siblings("input[id=hc_inventory]").val()
 
                     const productType = variantTagInput.val().includes('Pre-Order') ? 'Pre-Order' : variantTagInput.val().includes('Back-Order') && 'Back-Order'
 
-                    if (continueSelling && continueSelling == 'true') {
+                    if (continueSelling && continueSelling == 'true' && variantInventory <= 0) {
 
                         // finding a button with type submit as the button will be on the same level as the input field so using siblings
                         const preorderButton = variantTagInput.siblings("#hc_preorderButton, .hc_preorderButton");
@@ -166,7 +169,7 @@
                         // will add Pre Order / Back Order label to the button
                         preorderButton.val(label);
 
-                        if ((!date || date == '_NA_' || date == 'NULL') && productType === 'Back-Order' && jQueryPreOrder(".hc_backorderString")) {
+                        if ((!date || date == '_NA_' || date == 'NULL') && productType === 'Back-Order' && jQueryPreOrder(".hc_backorderString").length) {
                             date = jQueryPreOrder(".hc_backorderString").text();
                         }
 
