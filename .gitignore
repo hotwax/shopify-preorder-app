@@ -15,6 +15,8 @@ UserInterfaceState.xcuserstate
 $RECYCLE.BIN/
 .history
 .env
+.env.*
+!env.example
 
 *.log
 log.txt
@@ -32,3 +34,5 @@ npm-debug.log*
 /platforms
 /plugins
 /www
+
+scripts/script-tag.min.js
