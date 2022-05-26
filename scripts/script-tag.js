@@ -66,14 +66,15 @@
     async function initialisePreOrder () {
         if (location.pathname.includes('products')) {
 
-            const cartForm = jQueryPreOrder("form[action='/cart/add']");
-            const variantId = cartForm.serializeArray().find(ele => ele.name === "id").value;
-
-            const preorderButton = jQueryPreOrder("#hc_preorderButton, .hc_preorderButton");
-            let productType = '';
-
             let hcpreorderShipsFrom = jQueryPreOrder("#hc_preordershipsfrom");
             let span = jQueryPreOrder("#hc_preordershipsfrom span");
+
+            jQueryPreOrder(".hc_productForm").each(function (i, form) {
+            const cartForm = jQueryPreOrder(form)
+            const variantId = cartForm.serializeArray().find(ele => ele.name === "id").value;
+
+            const preorderButton = cartForm.find("#hc_preorderButton, .hc_preorderButton");
+            let productType = '';
 
             hcpreorderShipsFrom.css('visibility', 'hidden');
             preorderButton.html(addToCartLabel);
@@ -132,7 +133,8 @@
             }
             preorderButton.off('click')
             // will handle the click event on the pre order button
-            preorderButton.on("click", addToCart);
+            preorderButton.on("click", { cartForm },  addToCart);
+            })
         } else {
             // this part executes on all the page other than product page
             // finding an input field with name tags and then iterating over the same
@@ -216,7 +218,7 @@
 
     // defined this method to handle add to cart from the product detail page
     function addToCart(event) {
-        let addToCartForm = jQueryPreOrder("form[action='/cart/add']");
+        let addToCartForm = event.data.cartForm;
 
         event.preventDefault();
         event.stopImmediatePropagation();
