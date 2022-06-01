@@ -9,7 +9,12 @@
 
     function getAddToCartLabel () {
         if (location.pathname.includes('products')) {
-            addToCartLabel = jQueryPreOrder("#hc_preorderButton, .hc_preorderButton").html();
+            const addToCartButton = jQueryPreOrder("#hc_preorderButton, .hc_preorderButton")
+            if (addToCartButton.is(':input')) {
+                addToCartLabel = addToCartButton.val();
+            } else {
+                addToCartLabel = addToCartButton.html();
+            }
         }
     }
 
@@ -69,7 +74,7 @@
             let hcpreorderShipsFrom = jQueryPreOrder("#hc_preordershipsfrom");
             let span = jQueryPreOrder("#hc_preordershipsfrom span");
 
-            jQueryPreOrder(".hc_productForm").each(function (i, form) {
+            jQueryPreOrder(".hc_productForm").each(async function (i, form) {
             const cartForm = jQueryPreOrder(form)
             const variantId = cartForm.serializeArray().find(ele => ele.name === "id").value;
 
@@ -77,11 +82,14 @@
             let productType = '';
 
             hcpreorderShipsFrom.css('visibility', 'hidden');
-            preorderButton.html(addToCartLabel);
+            if (preorderButton.is(':input')) {
+                preorderButton.val(addToCartLabel);
+            } else {
+                preorderButton.html(addToCartLabel);
+            }
 
             // removing the click event with handler addToCart
             preorderButton.off('click', addToCart);
-            preorderButton.siblings().css('display', 'block');
 
             let checkItemAvailablity = await isItemAvailableForOrder().then((product) => {
                 // checking what type of tag product contains (Pre-Order / Back-order) and on the basis of that will check for metafield
@@ -110,14 +118,16 @@
                 localDeliveryDate = '';
             }
 
-            preorderButton.siblings().css('display', 'none');
-
             // Using different namespace for preorder and backorder but will update it to use single
             // namespace for the both the things
             buttonLabel = productType === 'Pre-Order' ? 'Pre Order' : productType === 'Back-Order' && 'Back Order'
 
             // will add Pre Order to the button
-            preorderButton.html(buttonLabel);
+            if (preorderButton.is(':input')) {
+                preorderButton.val(buttonLabel);
+            } else {
+                preorderButton.html(`<span>${buttonLabel}</span>`);
+            }
 
             // will find for a tag with id hc_preordershipsfrom and if found then add the date to the tag
             if(hcpreorderShipsFrom.length > 0) {
