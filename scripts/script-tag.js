@@ -90,9 +90,8 @@
                 return product.variants.find((variant) => variant.id == variantId).available
             }).catch(err => err);
 
-            if (jQueryPreOrder("input[id='hc_inventory']").val() > 0) checkItemAvailablity = false;
+            checkItemAvailablity = !(jQueryPreOrder("input[id='hc_inventory']").val() > 0) && (Object.entries(hc_inventory_policy).find(([key, value]) => key == variantId)[1] != "continue");
 
-            if (Object.entries(hc_inventory_policy).find(([key, value]) => key == variantId)[1] != "continue") checkItemAvailablity = false;
 
             // if the product does not contains specific tag and continue selling is not enabled then not executing the script
             if (!checkItemAvailablity) return ;
