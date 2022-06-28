@@ -4,6 +4,7 @@ import RootState from '@/store/RootState'
 import UserState from './UserState'
 import { hasError, showToast } from '@/utils'
 import * as types from './mutation-types'
+import { translate } from '@/i18n'
 
 const actions: ActionTree<UserState, RootState> = {
   async login ({ commit, dispatch }, { username, password }) {
@@ -15,17 +16,17 @@ const actions: ActionTree<UserState, RootState> = {
           await dispatch('getProfile')
           return resp.data;
         } else if (hasError(resp)) {
-          showToast('Sorry, your username or password is incorrect. Please try again.');
+          showToast(translate('Sorry, your username or password is incorrect. Please try again.'));
           console.error("error", resp.data._ERROR_MESSAGE_);
           return Promise.reject(new Error(resp.data._ERROR_MESSAGE_));
         }
       } else {
-        showToast('Something went wrong');
+        showToast(translate('Something went wrong'));
         console.error("error", resp.data._ERROR_MESSAGE_);
         return Promise.reject(new Error(resp.data._ERROR_MESSAGE_));
       }
     } catch (err: any) {
-      showToast('Something went wrong');
+      showToast(translate('Something went wrong'));
       console.error("error", err);
       return Promise.reject(new Error(err))
     }
@@ -44,16 +45,9 @@ const actions: ActionTree<UserState, RootState> = {
     const resp = await UserService.getProfile()
     if (resp.status === 200) {
       commit(types.USER_INFO_UPDATED, resp.data);
-      commit(types.USER_CURRENT_FACILITY_UPDATED, resp.data.facilities.length > 0 ? resp.data.facilities[0] : {});
     }
   },
 
-  /**
-   * update current facility information
-   */
-  async setFacility ({ commit }, payload) {
-    commit(types.USER_CURRENT_FACILITY_UPDATED, payload.facility);
-  },
-
+  
 }
 export default actions;

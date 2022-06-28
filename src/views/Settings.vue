@@ -7,15 +7,7 @@
     </ion-header>
     
     <ion-content>
-      <ion-list>
-        <!-- Select store -->
-        <ion-item>
-          <ion-icon :icon="storefrontOutline" slot="start" />
-          <ion-label>{{$t("Store")}}</ion-label>
-          <ion-select interface="popover" :value="currentFacility.facilityId" @ionChange="setFacility($event)">
-            <ion-select-option v-for="facility in (userProfile ? userProfile.facilities : [])" :key="facility.facilityId" :value="facility.facilityId" >{{ facility.name }}</ion-select-option>
-          </ion-select>
-        </ion-item>
+      <ion-list>     
         <!-- OMS information -->
         <ion-item>
           <ion-icon :icon="codeWorkingOutline" slot="start"/>
@@ -34,12 +26,11 @@
 </template>
 
 <script lang="ts">
-import { IonButton, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonSelect, IonSelectOption, IonTitle, IonToggle , IonToolbar, modalController } from '@ionic/vue';
+import { IonButton, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonTitle, IonToolbar, modalController } from '@ionic/vue';
 import { defineComponent } from 'vue';
-import { ellipsisVertical, personCircleOutline, sendOutline , storefrontOutline, codeWorkingOutline } from 'ionicons/icons'
+import { personCircleOutline, codeWorkingOutline } from 'ionicons/icons'
 import { mapGetters, useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import TimeZoneModal from '@/views/TimezoneModal.vue';
 
 export default defineComponent({
   name: 'Settings',
@@ -51,11 +42,8 @@ export default defineComponent({
     IonItem, 
     IonLabel, 
     IonList,
-    IonPage, 
-    IonSelect, 
-    IonSelectOption,
+    IonPage,  
     IonTitle,
-    IonToggle, 
     IonToolbar
   },
   data(){
@@ -66,17 +54,10 @@ export default defineComponent({
   computed: {
     ...mapGetters({
       userProfile: 'user/getUserProfile',
-      currentFacility: 'user/getCurrentFacility',
       instanceUrl: 'user/getInstanceUrl',
     })
   },
   methods: {
-    setFacility (facility: any) {
-      if (this.userProfile)
-        this.store.dispatch('user/setFacility', {
-          'facility': this.userProfile.facilities.find((fac: any) => fac.facilityId == facility['detail'].value)
-        });
-    },
     logout () {
       this.store.dispatch('user/logout').then(() => {
         this.router.push('/login');
@@ -88,12 +69,9 @@ export default defineComponent({
     const router = useRouter();
 
     return {
-      ellipsisVertical,
       personCircleOutline,
       router,
-      sendOutline,
       store,
-      storefrontOutline,
       codeWorkingOutline
     }
   }
