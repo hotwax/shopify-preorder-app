@@ -11,9 +11,9 @@ const actions: ActionTree<UserState, RootState> = {
       const resp = await UserService.login(username, password)
       if (resp.status === 200 && resp.data) {
         if (resp.data.token) {
-            commit(types.USER_TOKEN_CHANGED, { newToken: resp.data.token })
-            await dispatch('getProfile')
-            return resp.data;
+          commit(types.USER_TOKEN_CHANGED, { newToken: resp.data.token })
+          await dispatch('getProfile')
+          return resp.data;
         } else if (hasError(resp)) {
           showToast('Sorry, your username or password is incorrect. Please try again.');
           console.error("error", resp.data._ERROR_MESSAGE_);
@@ -35,11 +35,12 @@ const actions: ActionTree<UserState, RootState> = {
     // TODO add any other tasks if need
     commit(types.USER_END_SESSION)
   },
+  
   setUserInstanceUrl ({ commit }, instanceUrl){
     commit(types.USER_INSTANCE_URL_UPDATED, instanceUrl)
-   },
+  },
 
-   async getProfile ( { commit }) {
+  async getProfile ( { commit }) {
     const resp = await UserService.getProfile()
     if (resp.status === 200) {
       commit(types.USER_INFO_UPDATED, resp.data);

@@ -1,4 +1,4 @@
-export default interface ShopState {
+export default interface UserState {
   token: string;
   instanceUrl: string;
   current: object | null;

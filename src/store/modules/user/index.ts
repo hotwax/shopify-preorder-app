@@ -5,7 +5,7 @@ import { Module } from 'vuex'
 import UserState from './UserState'
 import RootState from '@/store/RootState'
 
-const shopModule: Module<UserState, RootState> = {
+const userModule: Module<UserState, RootState> = {
   namespaced: true,
   state: {
     token: '',
@@ -18,7 +18,7 @@ const shopModule: Module<UserState, RootState> = {
   mutations,
 }
 
-export default shopModule;
+export default userModule;
 
 // TODO
 // store.registerModule('user', userModule);

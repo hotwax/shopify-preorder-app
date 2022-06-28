@@ -11,11 +11,11 @@
           </ion-item>
           <ion-item lines="full">
             <ion-label position="fixed">{{ $t("Username") }}</ion-label>
-            <ion-input name="username" v-model="username" id="username"  type="text" required></ion-input>
+            <ion-input name="username" v-model="username" id="username"  type="text" required />
           </ion-item>
           <ion-item lines="none">
             <ion-label position="fixed">{{ $t("Password") }}</ion-label>
-            <ion-input name="password" v-model="password" id="password" type="password" required></ion-input>
+            <ion-input name="password" v-model="password" id="password" type="password" required />
           </ion-item>
 
           <div class="ion-padding">
