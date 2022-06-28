@@ -4,6 +4,7 @@ import getters  from './getters'
 import actions from './actions'
 import RootState from './RootState'
 import shopModule from "./modules/shop"
+import userModule from "./modules/user"
 import createPersistedState from "vuex-persistedstate";
 
 
@@ -17,7 +18,7 @@ const state: any = {
 }
 
 const persistState = createPersistedState({
-    paths: [],
+    paths: ['user'],
     fetchBeforeUse: true
 })
 
@@ -29,7 +30,8 @@ const store = createStore<RootState>({
     getters,
     plugins: [ persistState ],
     modules: {
-        'shop': shopModule
+        'shop': shopModule,
+        'user': userModule
     }
 })
 

@@ -1,7 +1,14 @@
 {
   "Shop": "Shop",
+  "Settings": "Settings",
+  "Store": "Store",
   "Install": "Install",
   "Welcome to HC PreOrder App": "Welcome to HC PreOrder App",
   "Click the backdrop to dismiss.": "Click the backdrop to dismiss.",
-  "Preorder": "Preorder"
+  "Preorder": "Preorder",
+  "Logout": "Logout",
+  "Username": "Username",
+  "Password": "Password",
+  "Login": "Login",
+  "OMS": "OMS"
 }
