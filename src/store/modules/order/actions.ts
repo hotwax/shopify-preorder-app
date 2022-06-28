@@ -5,14 +5,14 @@ import * as types from './mutation-types'
 import { getOrder } from '@/services'
 
 const actions: ActionTree<OrderState, RootState> = {
-  getOrders({ commit }){
+  async fetchDraftOrder({ commit }){
     const payload = {
-      
+      draftOrderId: "1051037040804",
       shopifyConfigId: "SH_NN_CONFIG"
     }
     try{
-      const resp = getOrder(payload);
-      console.log(resp);
+      const resp = await getOrder(payload);
+      console.log(JSON.parse(resp.data.draftOrder));
     } catch(err){
       console.log(err)
     }

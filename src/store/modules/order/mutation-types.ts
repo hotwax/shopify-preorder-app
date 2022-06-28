@@ -1,4 +1,2 @@
-export const SN_SHOP = 'shop'
-export const SHOP_TOKEN_CHANGED = SN_SHOP + '/TOKEN_CHANGED'
-export const SHOP_UPDATED = SN_SHOP + '/SHOP_UPDATED'
-export const SHOP_TOKEN_UPDATED= SN_SHOP + '/SHOP_TOKEN_UPDATED'
+export const SN_ORDER = 'order'
+export const SN_ORDER_UPDATED = SN_ORDER + '\ORDER_UPDATED'
