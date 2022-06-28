@@ -90,6 +90,7 @@
 
             // removing the click event with handler addToCart
             preorderButton.off('click', addToCart);
+            preorderButton.siblings().css('display', 'block');
 
             let checkItemAvailablity = await isItemAvailableForOrder().then((product) => {
                 // checking what type of tag product contains (Pre-Order / Back-order) and on the basis of that will check for metafield
@@ -115,6 +116,8 @@
             if (new Date(localDeliveryDate) < now) {
                 localDeliveryDate = '';
             }
+
+            preorderButton.siblings().css('display', 'none');
 
             // Using different namespace for preorder and backorder but will update it to use single
             // namespace for the both the things
