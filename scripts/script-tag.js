@@ -9,7 +9,12 @@
 
     function getAddToCartLabel () {
         if (location.pathname.includes('products')) {
-            addToCartLabel = jQueryPreOrder("#hc_preorderButton, .hc_preorderButton").html();
+            const addToCartButton = jQueryPreOrder("#hc_preorderButton, .hc_preorderButton")
+            if (addToCartButton.is(':input')) {
+                addToCartLabel = addToCartButton.val();
+            } else {
+                addToCartLabel = addToCartButton.html();
+            }
         }
     }
 
@@ -66,21 +71,25 @@
     async function initialisePreOrder () {
         if (location.pathname.includes('products')) {
 
-            const cartForm = jQueryPreOrder("form[action='/cart/add']");
-            const variantId = cartForm.serializeArray().find(ele => ele.name === "id").value;
-
-            const preorderButton = jQueryPreOrder("#hc_preorderButton, .hc_preorderButton");
-            let productType = '';
-
             let hcpreorderShipsFrom = jQueryPreOrder("#hc_preordershipsfrom");
             let span = jQueryPreOrder("#hc_preordershipsfrom span");
 
+            jQueryPreOrder(".hc_productForm").each(async function (i, form) {
+            const cartForm = jQueryPreOrder(form)
+            const variantId = cartForm.serializeArray().find(ele => ele.name === "id").value;
+
+            const preorderButton = cartForm.find("#hc_preorderButton, .hc_preorderButton");
+            let productType = '';
+
             hcpreorderShipsFrom.css('visibility', 'hidden');
-            preorderButton.html(addToCartLabel);
+            if (preorderButton.is(':input')) {
+                preorderButton.val(addToCartLabel);
+            } else {
+                preorderButton.html(addToCartLabel);
+            }
 
             // removing the click event with handler addToCart
             preorderButton.off('click', addToCart);
-            preorderButton.siblings().css('display', 'block');
 
             let checkItemAvailablity = await isItemAvailableForOrder().then((product) => {
                 // checking what type of tag product contains (Pre-Order / Back-order) and on the basis of that will check for metafield
@@ -107,14 +116,16 @@
                 localDeliveryDate = '';
             }
 
-            preorderButton.siblings().css('display', 'none');
-
             // Using different namespace for preorder and backorder but will update it to use single
             // namespace for the both the things
             buttonLabel = productType === 'Pre-Order' ? 'Pre Order' : productType === 'Back-Order' && 'Back Order'
 
             // will add Pre Order to the button
-            preorderButton.html(buttonLabel);
+            if (preorderButton.is(':input')) {
+                preorderButton.val(buttonLabel);
+            } else {
+                preorderButton.html(`<span>${buttonLabel}</span>`);
+            }
 
             // will find for a tag with id hc_preordershipsfrom and if found then add the date to the tag
             if(hcpreorderShipsFrom.length > 0) {
@@ -130,7 +141,8 @@
             }
             preorderButton.off('click')
             // will handle the click event on the pre order button
-            preorderButton.on("click", addToCart);
+            preorderButton.on("click", { cartForm },  addToCart);
+            })
         } else {
             // this part executes on all the page other than product page
             // finding an input field with name tags and then iterating over the same
@@ -214,7 +226,7 @@
 
     // defined this method to handle add to cart from the product detail page
     function addToCart(event) {
-        let addToCartForm = jQueryPreOrder("form[action='/cart/add']");
+        let addToCartForm = event.data.cartForm;
 
         event.preventDefault();
         event.stopImmediatePropagation();
