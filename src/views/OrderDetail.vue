@@ -63,8 +63,8 @@
             <ion-checkbox :checked=" item.properties.find(property => property.name === 'Note')?.value == 'Back Order'" @ionChange="addProperty('Back Order', item, $event)" />
           </ion-item>               
         </ion-card>
-        <ion-button @click="updateOrder(order.line_items, item)">Save</ion-button>
-      </main> 
+      </main>
+      <ion-button @click="updateOrder(order.line_items)">{{ $t("Update") }}</ion-button> 
     </div>   
     </ion-content>
   </ion-page>
