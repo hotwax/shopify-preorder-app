@@ -1,16 +1,22 @@
 {
+  "Back Order": "Back Order",
+  "Copy": "Copy",
   "Shop": "Shop",
   "Settings": "Settings",
+  "SKU": "SKU",
   "Store": "Store",
   "Something went wrong": "Something went wrong",
   "Sorry, your username or password is incorrect. Please try again.": "Sorry, your username or password is incorrect. Please try again.",
   "Install": "Install",
   "Welcome to HC PreOrder App": "Welcome to HC PreOrder App",
   "Click the backdrop to dismiss.": "Click the backdrop to dismiss.",
+  "Pre Order": "Pre Order",
   "Preorder": "Preorder",
   "Logout": "Logout",
   "Username": "Username",
   "Password": "Password",
   "Login": "Login",
-  "OMS": "OMS"
+  "OMS": "OMS",
+  "Order Details": "Order Details",
+  "Order Updated successfully.": "Order Updated successfully."
 }

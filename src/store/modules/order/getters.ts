@@ -4,7 +4,7 @@ import RootState from '@/store/RootState'
 
 const getters: GetterTree <OrderState, RootState> = {
   getDraftOrder(state){
-    return state.draftOrder;
+    return (state.draftOrder);
   }
 }
 export default getters;

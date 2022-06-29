@@ -15,7 +15,16 @@ const getOrder = async (payload: any): Promise <any>  => {
   });
 }
 
+const updateOrder = async (payload: any): Promise <any>  => {
+  return api({
+    url: "service/updateShopifyDraftOrder",
+    method: "post",
+    data: payload
+  });
+}
+
 export {
   generateAccessToken,
-  getOrder
+  getOrder,
+  updateOrder
 }
