@@ -5,7 +5,7 @@ import { Module } from 'vuex'
 import OrderState from './orderState'
 import RootState from '@/store/RootState'
 
-const shopModule: Module<OrderState, RootState> = {
+const orderModule: Module<OrderState, RootState> = {
   namespaced: true,
   state: {
     draftOrder: {}
@@ -15,7 +15,7 @@ const shopModule: Module<OrderState, RootState> = {
   mutations,
 }
 
-export default shopModule;
+export default orderModule;
 
 // TODO
 // store.registerModule('user', userModule);
