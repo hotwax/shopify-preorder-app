@@ -38,6 +38,7 @@ const actions: ActionTree<OrderState, RootState> = {
       } 
     } catch (err) {
       console.error(err);
+      showToast(translate("Something went wrong"));
     }
   }
 }
