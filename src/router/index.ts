@@ -26,8 +26,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/install',
     name: 'Install',
-    component: Install,
-    beforeEnter: authGuard,
+    component: Install
   },
   {
     path: '/login',

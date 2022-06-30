@@ -4,11 +4,6 @@
       <div class="flex">
         <form class="login-container" @keyup.enter="login(form)" @submit.prevent="login(form)">
           <Logo />
-
-          <ion-item lines="full" v-if="!baseURL">
-            <ion-label position="fixed">{{ $t("OMS") }}</ion-label>
-            <ion-input name="instanceUrl" v-model="instanceUrl" id="instanceUrl"  type="text" required />
-          </ion-item>
           <ion-item lines="full">
             <ion-label position="fixed">{{ $t("Username") }}</ion-label>
             <ion-input name="username" v-model="username" id="username"  type="text" required />
@@ -57,8 +52,7 @@ export default defineComponent({
     return {
       username: "",
       password: "",
-      instanceUrl: "",
-      baseURL: process.env.VUE_APP_BASE_URL
+      instanceUrl: ""
     };
   },
   computed: {
@@ -67,11 +61,13 @@ export default defineComponent({
     })
   },
   mounted() {
-    this.instanceUrl = this.currentInstanceUrl;
+    const shop = this.$route.query.shop as any;
+    const shopConfig = JSON.parse(process.env.VUE_APP_SHOPIFY_SHOP_CONFIG);
+    this.instanceUrl = shopConfig[shop].oms;
   },
   methods: {
     login: function () {
-      if(!this.baseURL) this.store.dispatch("user/setUserInstanceUrl", this.instanceUrl.trim())
+      this.store.dispatch("user/setUserInstanceUrl", this.instanceUrl.trim())
       
       const { username, password } = this;
       this.store.dispatch("user/login", { username, password }).then((data: any) => {
