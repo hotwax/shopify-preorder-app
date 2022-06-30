@@ -120,7 +120,7 @@ export default defineComponent({
     })
   },
   created(){
-    this.store.dispatch('order/fetchDraftOrder', this.$route.params.id);
+    this.store.dispatch('order/fetchDraftOrder', this.$route.query.id);
   },
   methods: {
     addProperty (value: string, item: any, event: any) {
@@ -132,7 +132,7 @@ export default defineComponent({
       }
     },
     updateOrder (lineItems: any) {
-      const id = this.$route.params.id;
+      const id = this.$route.query.id;
       this.store.dispatch('order/updateDraftOrder', {lineItems, id});
     },
     isChecked (item: any, value: string) {
