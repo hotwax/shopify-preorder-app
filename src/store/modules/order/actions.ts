@@ -7,9 +7,9 @@ import { hasError, showToast } from '@/utils'
 import { translate } from '@/i18n'
 
 const actions: ActionTree<OrderState, RootState> = {
-  async fetchDraftOrder ({ commit }) {
+  async fetchDraftOrder ({ commit }, id) {
     const payload = {
-      draftOrderId: "1008063086756",
+      draftOrderId: id,
       shopifyConfigId: "SH_NN_CONFIG"
     }
     try {
@@ -26,15 +26,15 @@ const actions: ActionTree<OrderState, RootState> = {
   async updateDraftOrder ({dispatch}, payload) {
     let resp;
     const params = {
-      draftOrderId: "1008063086756",
-      payload: {"draft_order": {"line_items": payload}},
+      draftOrderId: payload.id,
+      payload: {"draft_order": {"line_items": payload.lineItems}},
       shopifyConfigId: "SH_NN_CONFIG"
     }
     try {
       resp = await OrderService.updateOrder(params);
       if(resp.status === 200 && !hasError(resp)){
         showToast(translate("Order Updated successfully."));
-        dispatch('fetchDraftOrder');
+        dispatch('fetchDraftOrder', payload.id);
       } 
     } catch (err) {
       console.error(err);

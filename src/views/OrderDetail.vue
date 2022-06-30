@@ -120,7 +120,7 @@ export default defineComponent({
     })
   },
   created(){
-    this.store.dispatch('order/fetchDraftOrder');
+    this.store.dispatch('order/fetchDraftOrder', this.$route.params.id);
   },
   methods: {
     addProperty (value: string, item: any, event: any) {
@@ -131,8 +131,9 @@ export default defineComponent({
         item.properties.splice(index, 1);
       }
     },
-    updateOrder (lineItems: any, item: any) {
-      this.store.dispatch('order/updateDraftOrder', lineItems);
+    updateOrder (lineItems: any) {
+      const id = this.$route.params.id;
+      this.store.dispatch('order/updateDraftOrder', {lineItems, id});
     },
     isChecked (item: any, value: string) {
       return item.properties?.find((property: any) => property.name === 'Note')?.value === value;
