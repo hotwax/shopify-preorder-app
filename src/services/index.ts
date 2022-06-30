@@ -7,24 +7,7 @@ const generateAccessToken = async (config: any): Promise <any>  => {
     ...config
   });
 }
-const getOrder = async (payload: any): Promise <any>  => {
-  return api({
-    url: "service/getShopifyDraftOrder",
-    method: "post",
-    data: payload
-  });
-}
-
-const updateOrder = async (payload: any): Promise <any>  => {
-  return api({
-    url: "service/updateShopifyDraftOrder",
-    method: "post",
-    data: payload
-  });
-}
 
 export {
   generateAccessToken,
-  getOrder,
-  updateOrder
 }

@@ -1,3 +1,3 @@
-export default interface ShopState {
+export default interface OrderState {
   draftOrder: any
 }
