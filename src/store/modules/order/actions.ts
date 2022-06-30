@@ -16,7 +16,7 @@ const actions: ActionTree<OrderState, RootState> = {
       const resp = await OrderService.getOrder(payload);
       if (resp.status === 200 && !hasError(resp) && resp.data.draftOrder) {
         const order = JSON.parse(resp.data.draftOrder);
-        commit(types.SN_ORDER_UPDATED, order.draft_order);
+        commit(types.ORDER_UPDATED, order.draft_order);
       }
     } catch(err){
       console.error(err)
