@@ -40,7 +40,7 @@
         </ion-button>
       </ion-item>
   
-      <main v-for="item in order.line_items" :key="item">
+      <main v-for="item in order.line_items" :key="item.id">
         <ion-card>
           <ion-item lines="none">
             <ion-label>
@@ -56,11 +56,11 @@
           </ion-item>
           <ion-item lines="none" class="border-top">
             <ion-label>{{ $t("Pre Order") }}</ion-label>
-            <ion-checkbox :checked="item.properties.find(property => property.name === 'Note')?.value == 'Pre Order'" @ionChange="addProperty('Pre Order', item, $event)" />
+            <ion-checkbox :checked="isChecked(item, 'Pre Order')" @ionChange="addProperty('Pre Order', item, $event)" />
           </ion-item>
           <ion-item lines="none" class="border-top">
             <ion-label>{{ $t("Back Order") }}</ion-label>
-            <ion-checkbox :checked=" item.properties.find(property => property.name === 'Note')?.value == 'Back Order'" @ionChange="addProperty('Back Order', item, $event)" />
+            <ion-checkbox :checked="isChecked(item, 'Back Order')" @ionChange="addProperty('Back Order', item, $event)" />
           </ion-item>               
         </ion-card>
       </main>
@@ -125,7 +125,7 @@ export default defineComponent({
   methods: {
     addProperty (value: string, item: any, event: any) {
       if (event.detail.checked) {
-        item.properties.push({ name: 'Note', value: value})
+        item.properties.push({ name: 'Note', value })
       } else {
         const index = item.properties.findIndex((property: any) => property.value === value);
         item.properties.splice(index, 1);
@@ -133,6 +133,9 @@ export default defineComponent({
     },
     updateOrder (lineItems: any, item: any) {
       this.store.dispatch('order/updateDraftOrder', lineItems);
+    },
+    isChecked (item: any, value: string) {
+      return item.properties?.find((property: any) => property.name === 'Note')?.value === value;
     }
   },
   setup() {
