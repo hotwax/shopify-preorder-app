@@ -1,4 +1,4 @@
-import api, { client } from '@/api';
+import { client } from '@/api';
 
 const generateAccessToken = async (config: any): Promise <any>  => {
   return client({
@@ -9,5 +9,5 @@ const generateAccessToken = async (config: any): Promise <any>  => {
 }
 
 export {
-  generateAccessToken,
+  generateAccessToken
 }

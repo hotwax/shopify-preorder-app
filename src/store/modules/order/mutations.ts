@@ -3,7 +3,7 @@ import OrderState from './orderState'
 import * as types from './mutation-types'
 
 const mutations: MutationTree <OrderState> = {
-  [types.SN_ORDER_UPDATED](state, payload){
+  [types.ORDER_UPDATED] (state, payload) {
     state.draftOrder = payload;
   }
 }

@@ -122,20 +122,16 @@ export default defineComponent({
   created(){
     this.store.dispatch('order/fetchDraftOrder');
   },
-  data(){
-    return {
-    }
-  },
-  methods:{
-    addProperty(value: string, item: any, event: any){
-      if(event.detail.checked){
+  methods: {
+    addProperty (value: string, item: any, event: any) {
+      if (event.detail.checked) {
         item.properties.push({ name: 'Note', value: value})
       } else {
         const index = item.properties.findIndex((property: any) => property.value === value);
         item.properties.splice(index, 1);
       }
     },
-    updateOrder(lineItems: any, item: any){
+    updateOrder (lineItems: any, item: any) {
       this.store.dispatch('order/updateDraftOrder', lineItems);
     }
   },
@@ -149,8 +145,7 @@ export default defineComponent({
       callOutline,
       mailOutline,
       router,
-      store,
-      
+      store
     };
   },
 });
