@@ -14,7 +14,7 @@
               <h2>{{order.customer?.first_name}} {{ order.customer?.last_name }}</h2>
               <p>{{ order.name }}</p>
             </ion-label>
-            <ion-badge color="dark" slot="end">{{ order.created_at }}</ion-badge>
+            <ion-badge color="dark" slot="end">{{ timeFromNow(order?.created_at) }}</ion-badge>
           </ion-item>
         </ion-list>
         <ion-item v-if="order.customer?.phone">
@@ -99,6 +99,7 @@ import {
 import { defineComponent } from 'vue';
 import { mapGetters, useStore } from 'vuex';
 import { useRouter } from 'vue-router';
+import { DateTime } from 'luxon';
 
 export default defineComponent({
   name: 'Home',
@@ -146,7 +147,13 @@ export default defineComponent({
       if (item.properties?.find((property: any) => property.name === 'Note')?.value === "Back Order"){
         return "Back Order"
       }
-    }
+    },
+    timeFromNow (time: string) {
+      if (time) {
+        const timeDiff = DateTime.fromISO(time).diff(DateTime.local());
+        return DateTime.local().plus(timeDiff).toRelative();
+      }
+    },
   },
   setup() {
     const store = useStore();
