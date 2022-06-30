@@ -41,8 +41,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/home',
     name: 'Home',
-    component: Home,
-    beforeEnter: authGuard,
+    component: Home
   },
   {
     path: "/settings",
