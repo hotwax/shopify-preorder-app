@@ -54,14 +54,17 @@
                 <p>{{ property.name }}: {{ property.value }}</p>
               </ion-label>
             </ion-item>
-            <ion-item lines="none" class="border-top">
-              <ion-label>{{ $t("Pre Order") }}</ion-label>
-              <ion-checkbox :checked="isChecked(item, 'Pre Order')" @ionChange="addProperty('Pre Order', item, $event)" />
-            </ion-item>
-            <ion-item lines="none" class="border-top">
-              <ion-label>{{ $t("Back Order") }}</ion-label>
-              <ion-checkbox :checked="isChecked(item, 'Back Order')" @ionChange="addProperty('Back Order', item, $event)" />
-            </ion-item>
+            <ion-radio-group :value="isSelected(item)" @ionChange="addProperty(item, $event)">
+              <ion-item lines="none" class="border-top">
+                <ion-label>{{ $t("Pre Order") }}</ion-label>
+                <ion-radio value="Pre Order" />
+              </ion-item>
+              <ion-item lines="none" class="border-top">
+                <ion-label>{{ $t("Back Order") }}</ion-label>
+                <ion-radio value="Back Order" />
+              </ion-item>
+            </ion-radio-group>
+            
           </ion-card>
         </main>
         <ion-button @click="updateOrder(order.line_items)">{{ $t("Update") }}</ion-button>
@@ -83,8 +86,9 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
-  IonCheckbox,
-  IonBackButton
+  IonBackButton,
+  IonRadio,
+  IonRadioGroup
 } from "@ionic/vue";
 import {
   sendOutline,
@@ -99,20 +103,21 @@ import { useRouter } from 'vue-router';
 export default defineComponent({
   name: 'Home',
   components: {
-  IonBadge,
-  IonButton,
-  IonCard,
-  IonContent,
-  IonHeader,
-  IonIcon,
-  IonItem,
-  IonLabel,
-  IonList,
-  IonPage,
-  IonTitle,
-  IonToolbar,
-  IonCheckbox,
-  IonBackButton
+    IonBadge,
+    IonButton,
+    IonCard,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonItem,
+    IonLabel,
+    IonList,
+    IonPage,
+    IonTitle,
+    IonToolbar,
+    IonBackButton,
+    IonRadio,
+    IonRadioGroup
   },
   computed: {
     ...mapGetters({
@@ -123,20 +128,24 @@ export default defineComponent({
     this.store.dispatch('order/fetchDraftOrder', this.$route.query.id);
   },
   methods: {
-    addProperty (value: string, item: any, event: any) {
-      if (event.detail.checked) {
-        item.properties.push({ name: 'Note', value })
-      } else {
-        const index = item.properties.findIndex((property: any) => property.value === value);
+    addProperty (item: any, event: any) {
+      if(item.properties?.find((property: any) => property.name === 'Note')){
+        const index = item.properties?.findIndex((property: any) => property.name === 'Note');
         item.properties.splice(index, 1);
       }
+      item.properties.push({ name: 'Note', value: event.detail.value })
     },
     updateOrder (lineItems: any) {
       const id = this.$route.query.id;
       this.store.dispatch('order/updateDraftOrder', {lineItems, id});
     },
-    isChecked (item: any, value: string) {
-      return item.properties?.find((property: any) => property.name === 'Note')?.value === value;
+    isSelected (item: any) {
+      if (item.properties?.find((property: any) => property.name === 'Note')?.value === "Pre Order"){
+        return "Pre Order"
+      }
+      if (item.properties?.find((property: any) => property.name === 'Note')?.value === "Back Order"){
+        return "Back Order"
+      }
     }
   },
   setup() {
