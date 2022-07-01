@@ -40,6 +40,10 @@ const actions: ActionTree<OrderState, RootState> = {
       console.error(err);
       showToast(translate("Something went wrong"));
     }
+  },
+
+  setRouteParams({commit}, payload){
+    commit(types.DRAFT_ORDER_ROUTE_PARAMS_UPDATED, payload);
   }
 }
 export default actions;

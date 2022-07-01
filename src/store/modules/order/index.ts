@@ -8,7 +8,8 @@ import RootState from '@/store/RootState'
 const orderModule: Module<OrderState, RootState> = {
   namespaced: true,
   state: {
-    draftOrder: {}
+    draftOrder: {},
+    routeParams: {}
   },
   getters,
   actions,

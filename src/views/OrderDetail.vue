@@ -126,11 +126,15 @@ export default defineComponent({
   },
   computed: {
     ...mapGetters({
-      order: 'order/getDraftOrder'
+      order: 'order/getDraftOrder',
+      routeParams: 'order/getRouteParams'
     })
   },
   created(){
-    this.store.dispatch('order/getDraftOrder', this.$route.query.id);
+    if(this.$route.query.id){
+      this.store.dispatch('order/setRouteParams', this.$route.query);
+    }
+    this.store.dispatch('order/getDraftOrder', this.routeParams.id);
   },
   methods: {
     addProperty (item: any, event: any) {
@@ -143,7 +147,7 @@ export default defineComponent({
       }
     },
     updateDraftOrder (lineItems: any) {
-      const id = this.$route.query.id;
+      const id = this.routeParams.id;
       this.store.dispatch('order/updateDraftOrder', {lineItems, id});
     },
     isSelected (item: any) {

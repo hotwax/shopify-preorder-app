@@ -57,13 +57,15 @@ export default defineComponent({
   },
   computed: {
     ...mapGetters({
-      currentInstanceUrl: 'user/getInstanceUrl'
+      currentInstanceUrl: 'user/getInstanceUrl',
+      routeParams: 'order/getRouteParams'
     })
   },
   mounted() {
-    const shop = this.$route.query.shop as any;
+    this.store.dispatch('order/setRouteParams', this.$route.redirectedFrom?.query);
+    const shop = this.routeParams.shop as any;
     const shopConfig = JSON.parse(process.env.VUE_APP_SHOPIFY_SHOP_CONFIG);
-    this.instanceUrl = shopConfig[shop].oms;
+    this.instanceUrl = shopConfig[shop]?.oms;
   },
   methods: {
     login: function () {
@@ -74,7 +76,7 @@ export default defineComponent({
         if (data.token) {
           this.username = ''
           this.password = ''
-          this.$router.push('/')
+          this.$router.push('/order-detail')
         }
       })
     }
