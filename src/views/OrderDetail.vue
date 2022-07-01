@@ -138,7 +138,7 @@ export default defineComponent({
         const index = item.properties?.findIndex((property: any) => property.name === 'Note');
         item.properties.splice(index, 1);
       }
-      if(!(event.detail.value === "None")){
+      if(event.detail.value !== "None"){
         item.properties.push({ name: 'Note', value: event.detail.value })
       }
     },
@@ -147,10 +147,9 @@ export default defineComponent({
       this.store.dispatch('order/updateDraftOrder', {lineItems, id});
     },
     isSelected (item: any) {
-      if (item.properties?.find((property: any) => property.name === 'Note')?.value === "Pre Order"){
-        return "Pre Order"
-      } else if (item.properties?.find((property: any) => property.name === 'Note')?.value === "Back Order"){
-        return "Back Order"
+      const property = item.properties?.find((property: any) => property.name === 'Note')?.value;
+      if (property){
+        return property
       } else {
         return "None"
       }
