@@ -63,6 +63,10 @@
                 <ion-label>{{ $t("Back Order") }}</ion-label>
                 <ion-radio value="Back Order" />
               </ion-item>
+              <ion-item lines="none" class="border-top">
+                <ion-label>{{ $t("None") }}</ion-label>
+                <ion-radio value="None" />
+              </ion-item>
             </ion-radio-group>
             
           </ion-card>
@@ -134,7 +138,9 @@ export default defineComponent({
         const index = item.properties?.findIndex((property: any) => property.name === 'Note');
         item.properties.splice(index, 1);
       }
-      item.properties.push({ name: 'Note', value: event.detail.value })
+      if(!(event.detail.value === "None")){
+        item.properties.push({ name: 'Note', value: event.detail.value })
+      }
     },
     updateOrder (lineItems: any) {
       const id = this.$route.query.id;
@@ -143,9 +149,10 @@ export default defineComponent({
     isSelected (item: any) {
       if (item.properties?.find((property: any) => property.name === 'Note')?.value === "Pre Order"){
         return "Pre Order"
-      }
-      if (item.properties?.find((property: any) => property.name === 'Note')?.value === "Back Order"){
+      } else if (item.properties?.find((property: any) => property.name === 'Note')?.value === "Back Order"){
         return "Back Order"
+      } else {
+        return "None"
       }
     },
     timeFromNow (time: string) {
