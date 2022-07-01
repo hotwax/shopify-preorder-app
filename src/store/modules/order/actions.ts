@@ -7,16 +7,16 @@ import { hasError, showToast } from '@/utils'
 import { translate } from '@/i18n'
 
 const actions: ActionTree<OrderState, RootState> = {
-  async fetchDraftOrder ({ commit }, id) {
+  async getDraftOrder ({ commit }, id) {
     const payload = {
       draftOrderId: id,
-      shopifyConfigId: "SH_NN_CONFIG"
+      shopifyConfigId: process.env.VUE_APP_SHOPIFY_SHOP
     }
     try {
-      const resp = await OrderService.getOrder(payload);
+      const resp = await OrderService.getDraftOrder(payload);
       if (resp.status === 200 && !hasError(resp) && resp.data.response.draft_order) {
         const order = resp.data.response.draft_order;
-        commit(types.ORDER_UPDATED, order);
+        commit(types.DRAFT_ORDER_UPDATED, order);
       }
     } catch (err) {
       console.error(err)
@@ -28,13 +28,13 @@ const actions: ActionTree<OrderState, RootState> = {
     const params = {
       draftOrderId: payload.id,
       payload: {"draft_order": {"line_items": payload.lineItems}},
-      shopifyConfigId: "SH_NN_CONFIG"
+      shopifyConfigId: process.env.VUE_APP_SHOPIFY_SHOP
     }
     try {
-      resp = await OrderService.updateOrder(params);
+      resp = await OrderService.updateDraftOrder(params);
       if(resp.status === 200 && !hasError(resp)){
         showToast(translate("Order Updated successfully."));
-        dispatch('fetchDraftOrder', payload.id);
+        dispatch('getDraftOrder', payload.id);
       } 
     } catch (err) {
       console.error(err);

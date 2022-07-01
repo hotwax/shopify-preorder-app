@@ -71,7 +71,7 @@
             
           </ion-card>
         </main>
-        <ion-button @click="updateOrder(order.line_items)">{{ $t("Update") }}</ion-button>
+        <ion-button @click="updateDraftOrder(order.line_items)">{{ $t("Update") }}</ion-button>
       </div>
     </ion-content>
   </ion-page>
@@ -130,7 +130,7 @@ export default defineComponent({
     })
   },
   created(){
-    this.store.dispatch('order/fetchDraftOrder', this.$route.query.id);
+    this.store.dispatch('order/getDraftOrder', this.$route.query.id);
   },
   methods: {
     addProperty (item: any, event: any) {
@@ -142,7 +142,7 @@ export default defineComponent({
         item.properties.push({ name: 'Note', value: event.detail.value })
       }
     },
-    updateOrder (lineItems: any) {
+    updateDraftOrder (lineItems: any) {
       const id = this.$route.query.id;
       this.store.dispatch('order/updateDraftOrder', {lineItems, id});
     },

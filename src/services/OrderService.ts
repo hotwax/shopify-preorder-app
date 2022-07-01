@@ -1,6 +1,6 @@
 import api from '@/api'
 
-const getOrder = async (payload: any): Promise <any>  => {
+const getDraftOrder = async (payload: any): Promise <any>  => {
   return api({
     url: "service/getShopifyDraftOrder",
     method: "post",
@@ -8,7 +8,7 @@ const getOrder = async (payload: any): Promise <any>  => {
   });
 }
   
-const updateOrder = async (payload: any): Promise <any>  => {
+const updateDraftOrder = async (payload: any): Promise <any>  => {
   return api({
     url: "service/updateShopifyDraftOrder",
     method: "post",
@@ -17,6 +17,6 @@ const updateOrder = async (payload: any): Promise <any>  => {
 }
 
 export const OrderService = {
-  getOrder,
-  updateOrder
+  getDraftOrder,
+  updateDraftOrder
 }
