@@ -30,7 +30,6 @@ const actions: ActionTree<ShopState, RootState> = {
       }
     } catch (err) {
       console.error(err);
-      showToast(translate("Shopify configuration missing."));
     }
   }
 }
