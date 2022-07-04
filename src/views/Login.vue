@@ -76,7 +76,8 @@ export default defineComponent({
         if (data.token) {
           this.username = ''
           this.password = ''
-          this.$router.push('/order-detail')
+          this.$router.push('/order-detail');
+          this.store.dispatch('shop/getShopifyConfigId', this.$route.query.shop?this.$route.query.shop : this.$route.redirectedFrom?.query.shop );
         }
       })
     }

@@ -8,6 +8,9 @@ const getters: GetterTree <ShopState, RootState> = {
   },
   getShop (state) {
     return state.shop;
+  },
+  getShopConfigId (state) {
+    return state.configId;
   }
 }
 export default getters;

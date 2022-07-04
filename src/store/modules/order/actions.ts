@@ -7,10 +7,10 @@ import { hasError, showToast } from '@/utils'
 import { translate } from '@/i18n'
 
 const actions: ActionTree<OrderState, RootState> = {
-  async getDraftOrder ({ commit }, id) {
+  async getDraftOrder ({ commit }, params) {
     const payload = {
-      draftOrderId: id,
-      shopifyConfigId: process.env.VUE_APP_SHOPIFY_SHOP
+      draftOrderId: params.id,
+      shopifyConfigId: params.configId
     }
     try {
       const resp = await OrderService.getDraftOrder(payload);
@@ -28,14 +28,14 @@ const actions: ActionTree<OrderState, RootState> = {
     const params = {
       draftOrderId: payload.id,
       payload: {"draft_order": {"line_items": payload.lineItems}},
-      shopifyConfigId: process.env.VUE_APP_SHOPIFY_SHOP
+      shopifyConfigId: payload.configId
     }
     try {
       resp = await OrderService.updateDraftOrder(params);
       if(resp.status === 200 && !hasError(resp)){
         showToast(translate("Order Updated successfully."));
-        dispatch('getDraftOrder', payload.id);
-      } 
+        await dispatch('getDraftOrder', {id: payload.id, configId: payload.configId});
+      }
     } catch (err) {
       console.error(err);
       showToast(translate("Something went wrong"));
