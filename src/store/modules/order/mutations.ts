@@ -6,8 +6,8 @@ const mutations: MutationTree <OrderState> = {
   [types.DRAFT_ORDER_UPDATED] (state, payload) {
     state.draftOrder = payload;
   },
-  [types.DRAFT_ORDER_ROUTE_PARAMS_UPDATED] (state, payload) {
-    state.routeParams = payload;
+  [types.DRAFT_ORDER_ID_UPDATED] (state, payload) {
+    state.currentOrderId = payload;
   }
 }
 export default mutations;

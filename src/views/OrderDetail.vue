@@ -127,15 +127,15 @@ export default defineComponent({
   computed: {
     ...mapGetters({
       order: 'order/getDraftOrder',
-      routeParams: 'order/getRouteParams',
+      orderId: 'order/getCurrentDraftOrderId',
       configId: 'shop/getShopConfigId'
     })
   },
   async mounted(){
     if(this.$route.query.id){
-      this.store.dispatch('order/setRouteParams', this.$route.query);
+      this.store.dispatch('order/setCurrentDraftOrderId', this.$route.query.id);
     }
-    await this.store.dispatch('order/getDraftOrder', {id: this.routeParams.id, configId: this.configId });
+    await this.store.dispatch('order/getDraftOrder', {id: this.orderId, configId: this.configId });
   },
   methods: {
     addProperty (item: any, event: any) {
@@ -148,7 +148,7 @@ export default defineComponent({
       }
     },
     updateDraftOrder (lineItems: any) {
-      const id = this.routeParams.id;
+      const id = this.orderId;
       this.store.dispatch('order/updateDraftOrder', {lineItems, id, configId: this.configId});
     },
     isSelected (item: any) {

@@ -6,8 +6,8 @@ const getters: GetterTree <OrderState, RootState> = {
   getDraftOrder (state) {
     return state.draftOrder;
   },
-  getRouteParams (state) {
-    return state.routeParams;
+  getCurrentDraftOrderId (state) {
+    return state.currentOrderId;
   }
 }
 export default getters;

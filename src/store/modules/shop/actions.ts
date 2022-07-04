@@ -10,7 +10,7 @@ const actions: ActionTree<ShopState, RootState> = {
     commit(types.SHOP_TOKEN_UPDATED, { token: payload.token })
   },
   setShop({ commit }, payload) {
-    commit(types.SHOP_UPDATED, { shop: payload.shop })
+    commit(types.SHOP_UPDATED, payload)
   },
   async getShopifyConfigId({commit}, shop){
     let resp;

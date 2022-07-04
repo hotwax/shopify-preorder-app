@@ -58,12 +58,13 @@ export default defineComponent({
   computed: {
     ...mapGetters({
       currentInstanceUrl: 'user/getInstanceUrl',
-      routeParams: 'order/getRouteParams'
+      shop: 'shop/getShop'
     })
   },
   mounted() {
-    this.store.dispatch('order/setRouteParams', this.$route.redirectedFrom?.query);
-    const shop = this.routeParams.shop as any;
+    this.store.dispatch('shop/setShop', this.$route.redirectedFrom?.query.shop);
+    this.store.dispatch('order/setCurrentDraftOrderId', this.$route.redirectedFrom?.query.id);
+    const shop = this.shop as any;
     const shopConfig = JSON.parse(process.env.VUE_APP_SHOPIFY_SHOP_CONFIG);
     this.instanceUrl = shopConfig[shop]?.oms;
   },

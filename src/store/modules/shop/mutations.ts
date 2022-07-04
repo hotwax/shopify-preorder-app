@@ -7,7 +7,7 @@ const mutations: MutationTree <ShopState> = {
     state.token = payload.newToken
   },
   [types.SHOP_UPDATED] (state, payload) {
-    state.shop = payload.shop;
+    state.shop = payload;
   },
   [types.SHOP_TOKEN_UPDATED] (state, payload) {
     state.token = payload.token;

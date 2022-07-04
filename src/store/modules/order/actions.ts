@@ -42,8 +42,8 @@ const actions: ActionTree<OrderState, RootState> = {
     }
   },
 
-  setRouteParams({commit}, payload){
-    commit(types.DRAFT_ORDER_ROUTE_PARAMS_UPDATED, payload);
+  setCurrentDraftOrderId({commit}, payload){
+    commit(types.DRAFT_ORDER_ID_UPDATED, payload);
   }
 }
 export default actions;

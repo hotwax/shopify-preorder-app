@@ -9,7 +9,7 @@ const orderModule: Module<OrderState, RootState> = {
   namespaced: true,
   state: {
     draftOrder: {},
-    routeParams: {}
+    currentOrderId: 0
   },
   getters,
   actions,
