@@ -35,6 +35,7 @@ const actions: ActionTree<UserState, RootState> = {
   },
   async logout ({ commit }) {
     // TODO add any other tasks if need
+    // TODO need to import shop mutation types to use mutation type to commit the mutation.
     store.commit('shop/shop/CONFIG_ID_UPDATED', "");
     commit(types.USER_END_SESSION)
   },

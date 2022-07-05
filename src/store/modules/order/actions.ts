@@ -17,9 +17,13 @@ const actions: ActionTree<OrderState, RootState> = {
       if (resp.status === 200 && !hasError(resp) && resp.data.response.draft_order) {
         const order = resp.data.response.draft_order;
         commit(types.DRAFT_ORDER_UPDATED, order);
+      } else {
+        console.error(resp);
+        showToast(translate("Something went wrong"));
       }
     } catch (err) {
-      console.error(err)
+      console.error(err);
+      showToast(translate("Something went wrong"));
     }
   },
 
@@ -32,9 +36,12 @@ const actions: ActionTree<OrderState, RootState> = {
     }
     try {
       resp = await OrderService.updateDraftOrder(params);
-      if(resp.status === 200 && !hasError(resp)){
+      if (resp.status === 200 && !hasError(resp)) {
         showToast(translate("Order Updated successfully."));
         await dispatch('getDraftOrder', {id: payload.id, configId: payload.configId});
+      } else {
+        console.error(resp);
+        showToast(translate("Something went wrong"));
       }
     } catch (err) {
       console.error(err);
