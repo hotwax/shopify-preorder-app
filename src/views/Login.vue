@@ -36,7 +36,7 @@ import { useRouter } from "vue-router";
 import { useStore } from "@/store";
 import { mapGetters } from "vuex";
 import Logo from '@/components/Logo.vue';
-import { hasError, showToast } from "@/utils";
+import { showToast } from "@/utils";
 import { translate } from "@/i18n";
 
 export default defineComponent({
