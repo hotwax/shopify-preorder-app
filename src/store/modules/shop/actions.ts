@@ -25,7 +25,7 @@ const actions: ActionTree<ShopState, RootState> = {
     }
     try {
       resp = await getShopifyConfigId(payload);
-      if(resp.data.docs && !hasError(resp)){
+      if(resp.status == 200 && !hasError(resp) && resp.data.docs){
         commit(types.SHOP_CONFIG_ID_UPDATED, resp.data.docs[0].shopifyConfigId)
       }
     } catch (err) {

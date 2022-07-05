@@ -5,6 +5,7 @@ import UserState from './UserState'
 import { hasError, showToast } from '@/utils'
 import * as types from './mutation-types'
 import { translate } from '@/i18n'
+import store from '@/store'
 
 const actions: ActionTree<UserState, RootState> = {
   async login ({ commit, dispatch }, { username, password }) {
@@ -34,6 +35,7 @@ const actions: ActionTree<UserState, RootState> = {
   },
   async logout ({ commit }) {
     // TODO add any other tasks if need
+    store.commit('shop/shop/CONFIG_ID_UPDATED', "");
     commit(types.USER_END_SESSION)
   },
   

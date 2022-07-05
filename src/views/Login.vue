@@ -36,7 +36,7 @@ import { useRouter } from "vue-router";
 import { useStore } from "@/store";
 import { mapGetters } from "vuex";
 import Logo from '@/components/Logo.vue';
-import { showToast } from "@/utils";
+import { hasError, showToast } from "@/utils";
 import { translate } from "@/i18n";
 
 export default defineComponent({
@@ -67,27 +67,28 @@ export default defineComponent({
   mounted() {
     this.store.dispatch('shop/setShop', this.$route.redirectedFrom?.query.shop);
     this.store.dispatch('order/setCurrentDraftOrderId', this.$route.redirectedFrom?.query.id);
-    this.store.dispatch('shop/getShopifyConfigId', this.$route.query.shop?this.$route.query.shop : this.$route.redirectedFrom?.query.shop );
     const shop = this.shop as any;
     const shopConfig = JSON.parse(process.env.VUE_APP_SHOPIFY_SHOP_CONFIG);
     this.instanceUrl = shopConfig[shop]?.oms;
   },
   methods: {
     login: function () {
-      if (this.shopifyConfig) {
-        this.store.dispatch("user/setUserInstanceUrl", this.instanceUrl.trim())
+      this.store.dispatch("user/setUserInstanceUrl", this.instanceUrl.trim())
       
-        const { username, password } = this;
-        this.store.dispatch("user/login", { username, password }).then((data: any) => {
-          if (data.token) {
-            this.username = ''
-            this.password = ''
-            this.$router.push('/order-detail');
-          }
-        })
-      } else {
-        showToast(translate("Shopify Configuration missing. You can not login."))
-      }
+      const { username, password } = this;
+      this.store.dispatch("user/login", { username, password }).then( async (data: any) => {
+        await this.store.dispatch('shop/getShopifyConfigId', this.$route.query.shop?this.$route.query.shop : this.$route.redirectedFrom?.query.shop );
+        if (data.token && this.shopifyConfig) {
+          this.username = ''
+          this.password = ''
+          this.$router.push('/order-detail');
+        } else {
+          showToast(translate("Shopify Configuration missing. You can not login."))
+          this.store.dispatch('user/logout').then(() => {
+            this.router.push('/login');
+          })
+        }
+      })
     }
   },
   setup () {
