@@ -8,37 +8,18 @@
     </ion-header>
     <ion-content>
       <div>
-        <ion-list>
-          <ion-item lines="none">
-            <ion-label>
-              <h2>{{order.customer?.first_name}} {{ order.customer?.last_name }}</h2>
-              <p>{{ order.name }}</p>
-            </ion-label>
-            <ion-badge color="dark" slot="end">{{ timeFromNow(order?.created_at) }}</ion-badge>
-          </ion-item>
-        </ion-list>
-        <ion-item v-if="order.customer?.phone">
-          <ion-icon :icon="callOutline" slot="start" />
-          <ion-label>{{ order.customer?.phone }}</ion-label>
-          <ion-button
-            fill="outline"
-            slot="end"
-            color="medium"
-          >
-            {{ $t("Copy") }}
-          </ion-button>
-        </ion-item>
-        <ion-item lines="none" v-if="order.customer?.email">
-          <ion-icon :icon="mailOutline" slot="start" />
-          <ion-label>{{ order.customer?.email }}</ion-label>
-          <ion-button
-            fill="outline"
-            slot="end"
-            color="medium"
-          >
-            {{ $t("Copy") }}
-          </ion-button>
-        </ion-item>
+        <h1 class="center-align">{{ $t("Order") }} {{ order.name }}</h1>
+        <ion-card>
+          <ion-list>
+            <ion-item lines="none">
+              <ion-label>
+                <h2>{{order.customer?.first_name}} {{ order.customer?.last_name }}</h2>
+                <p>CSR name</p>
+              </ion-label>
+              <ion-note slot="end">{{ timeFromNow(order?.created_at) }}</ion-note>
+            </ion-item>
+          </ion-list>
+        </ion-card>
     
         <main v-for="item in order.line_items" :key="item.id">
           <ion-card>
@@ -50,43 +31,43 @@
               </ion-label>
             </ion-item>
             <ion-item>
-              <ion-label v-for="property in item.properties" :key="property">
-                <p>{{ property.name }}: {{ property.value }}</p>
-              </ion-label>
+              <ion-checkbox slot="start" />
+              <ion-label>{{ $t("Pickup") }}</ion-label>
+              <ion-note slot="end">15 {{ $t("in stock") }}</ion-note>
             </ion-item>
             <ion-radio-group :value="isSelected(item)" @ionChange="addProperty(item, $event)">
-              <ion-item lines="none" class="border-top">
+              <ion-item class="border-top">
+                <ion-radio slot="start" value="Pre Order" />
                 <ion-label>{{ $t("Pre Order") }}</ion-label>
-                <ion-radio value="Pre Order" />
+                <ion-note slot="end">ship from date</ion-note>
               </ion-item>
-              <ion-item lines="none" class="border-top">
-                <ion-label>{{ $t("Back Order") }}</ion-label>
-                <ion-radio value="Back Order" />
-              </ion-item>
-              <ion-item lines="none" class="border-top">
-                <ion-label>{{ $t("None") }}</ion-label>
-                <ion-radio value="None" />
+              <ion-item class="border-top">
+                <ion-radio slot="start" value="Back Order" />
+                <ion-label >{{ $t("Back Order") }}</ion-label>
+                <ion-note slot="end" color="warning">{{ $t("No shipping estimates") }}</ion-note>
               </ion-item>
             </ion-radio-group>
             
           </ion-card>
         </main>
-        <ion-button @click="updateDraftOrder(order.line_items)">{{ $t("Update") }}</ion-button>
+        <div class="text-center center-align">
+          <ion-button @click="updateDraftOrder(order.line_items)">{{ $t("Save changes to order") }}</ion-button>
+        </div>
       </div>
     </ion-content>
   </ion-page>
 </template>
 <script lang="ts">
 import {
-  IonBadge,
   IonButton,
   IonCard,
+  IonCheckbox,
   IonContent,
   IonHeader,
-  IonIcon,
   IonItem,
   IonLabel,
   IonList,
+  IonNote,
   IonPage,
   IonTitle,
   IonToolbar,
@@ -108,15 +89,15 @@ import { DateTime } from 'luxon';
 export default defineComponent({
   name: 'Home',
   components: {
-    IonBadge,
     IonButton,
     IonCard,
+    IonCheckbox,
     IonContent,
     IonHeader,
-    IonIcon,
     IonItem,
     IonLabel,
     IonList,
+    IonNote,
     IonPage,
     IonTitle,
     IonToolbar,
@@ -184,8 +165,13 @@ export default defineComponent({
 
 <style scoped>
 ion-content > div {
-  max-width: 560px;
+  max-width: 400px;
   margin-right: auto;
   margin-left: auto;
+}
+
+.center-align {
+  display: flex;
+  justify-content: center;
 }
 </style>

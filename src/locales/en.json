@@ -9,8 +9,10 @@
   "Something went wrong": "Something went wrong",
   "Sorry, your username or password is incorrect. Please try again.": "Sorry, your username or password is incorrect. Please try again.",
   "Install": "Install",
+  "in stock": "in stock",
   "Welcome to HC PreOrder App": "Welcome to HC PreOrder App",
   "Click the backdrop to dismiss.": "Click the backdrop to dismiss.",
+  "Pickup": "Pickup",
   "Pre Order": "Pre Order",
   "Preorder": "Preorder",
   "Logout": "Logout",
@@ -18,8 +20,10 @@
   "Password": "Password",
   "Login": "Login",
   "OMS": "OMS",
+  "Order": "Order",
   "Order Details": "Order Details",
   "Order Updated successfully.": "Order Updated successfully.",
-  "Update": "Update",
+  "Save changes to order": "Save changes to order",
+  "No shipping estimates": "No shipping estimates",
   "None": "None"
 }
