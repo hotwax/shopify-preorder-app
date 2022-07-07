@@ -37,17 +37,16 @@
             </ion-item>
             <ion-radio-group :value="isSelected(item)" @ionChange="addProperty(item, $event)">
               <ion-item class="border-top">
-                <ion-radio :disabled="checkPreOrderAvailability(item, 'PREORDER')" slot="start" value="PREORDER" />
+                <ion-radio :disabled="checkPreOrderAvailability(item, 'PREORDER')" slot="start" value="Pre Order" />
                 <ion-label>{{ $t("Pre Order") }}</ion-label>
                 <ion-note slot="end" :color="getEstimatedDeliveryDate(item.sku, 'PREORDER') ? '' : 'warning'">{{ getEstimatedDeliveryDate(item.sku, "PREORDER") ? getEstimatedDeliveryDate(item.sku, "PREORDER") : $t("No shipping estimates") }}</ion-note>
               </ion-item>
               <ion-item class="border-top">
-                <ion-radio :disabled="checkPreOrderAvailability(item, 'BACKORDER')" slot="start" value="BACKORDER" />
+                <ion-radio :disabled="checkPreOrderAvailability(item, 'BACKORDER')" slot="start" value="Back Order" />
                 <ion-label >{{ $t("Back Order") }}</ion-label>
                 <ion-note slot="end" :color="getEstimatedDeliveryDate(item.sku, 'BACKORDER') ? '' : 'warning'">{{ getEstimatedDeliveryDate(item.sku, "BACKORDER") ? getEstimatedDeliveryDate(item.sku, "BACKORDER") : $t("No shipping estimates") }}</ion-note>
               </ion-item>
             </ion-radio-group>
-            
           </ion-card>
         </main>
         <div class="text-center center-align">
@@ -129,17 +128,15 @@ export default defineComponent({
   },
   methods: {
     checkPreOrderAvailability(item: any, label: string){
-      const product = this.checkPreorderItemAvailability.find((product: any) => {
+      const product = this.checkPreorderItemAvailability.some((product: any) => {
         return product.sku == item.sku && product.label == label
       })
       return !product;
     },
     addProperty (item: any, event: any) {
-      const product = this.checkPreorderItemAvailability.find((product: any) => {
-        return product.sku == item.sku
-      })
+      const product = this.checkPreorderItemAvailability.find((product: any) => product.sku == item.sku)
       if(product){
-        item.properties.push({ name: 'Note', value: event.detail.value }, { name: 'EstimatedDeliveryDate', value: product.estimatedDeliveryDate })
+        item.properties.push({ name: 'Note', value: event.detail.value }, { name: 'PROMISE_DATE', value: product.estimatedDeliveryDate })
       }
     },
     updateDraftOrder (lineItems: any) {
@@ -148,11 +145,7 @@ export default defineComponent({
     },
     isSelected (item: any) {
       const property = item.properties?.find((property: any) => property.name === 'Note')?.value;
-      if (property){
-        return property
-      } else {
-        return "None"
-      }
+      return property ?  property :  "None";
     },
     timeFromNow (time: string) {
       if (time) {
