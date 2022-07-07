@@ -37,14 +37,14 @@
             </ion-item>
             <ion-radio-group :value="isSelected(item)" @ionChange="addProperty(item, $event)">
               <ion-item class="border-top">
-                <ion-radio slot="start" value="Pre Order" />
+                <ion-radio :disabled="checkPreOrderAvailability(item, 'PREORDER')" slot="start" value="PREORDER" />
                 <ion-label>{{ $t("Pre Order") }}</ion-label>
-                <ion-note slot="end">ship from date</ion-note>
+                <ion-note slot="end" :color="getEstimatedDeliveryDate(item.sku, 'PREORDER') ? '' : 'warning'">{{ getEstimatedDeliveryDate(item.sku, "PREORDER") ? getEstimatedDeliveryDate(item.sku, "PREORDER") : $t("No shipping estimates") }}</ion-note>
               </ion-item>
               <ion-item class="border-top">
-                <ion-radio slot="start" value="Back Order" />
+                <ion-radio :disabled="checkPreOrderAvailability(item, 'BACKORDER')" slot="start" value="BACKORDER" />
                 <ion-label >{{ $t("Back Order") }}</ion-label>
-                <ion-note slot="end" color="warning">{{ $t("No shipping estimates") }}</ion-note>
+                <ion-note slot="end" :color="getEstimatedDeliveryDate(item.sku, 'BACKORDER') ? '' : 'warning'">{{ getEstimatedDeliveryDate(item.sku, "BACKORDER") ? getEstimatedDeliveryDate(item.sku, "BACKORDER") : $t("No shipping estimates") }}</ion-note>
               </ion-item>
             </ion-radio-group>
             
@@ -112,20 +112,34 @@ export default defineComponent({
       configId: 'shop/getShopConfigId'
     })
   },
+  data(){
+    return {
+      checkPreorderItemAvailability: [] as any
+    }
+  },
   async mounted(){
     if(this.$route.query.id){
       this.store.dispatch('order/setCurrentDraftOrderId', this.$route.query.id);
     }
     await this.store.dispatch('order/getDraftOrder', {id: this.orderId, configId: this.configId });
+    const productIds = await this.order.line_items.map((item: any) => {
+      return item.sku;
+    }).filter((id: any) => id);
+    this.checkPreorderItemAvailability = await this.store.dispatch('shop/checkPreorderItemAvailability', productIds);
   },
   methods: {
+    checkPreOrderAvailability(item: any, label: string){
+      const product = this.checkPreorderItemAvailability.find((product: any) => {
+        return product.sku == item.sku && product.label == label
+      })
+      return !product;
+    },
     addProperty (item: any, event: any) {
-      if(item.properties?.find((property: any) => property.name === 'Note')){
-        const index = item.properties?.findIndex((property: any) => property.name === 'Note');
-        item.properties.splice(index, 1);
-      }
-      if(event.detail.value !== "None"){
-        item.properties.push({ name: 'Note', value: event.detail.value })
+      const product = this.checkPreorderItemAvailability.find((product: any) => {
+        return product.sku == item.sku
+      })
+      if(product){
+        item.properties.push({ name: 'Note', value: event.detail.value }, { name: 'EstimatedDeliveryDate', value: product.estimatedDeliveryDate })
       }
     },
     updateDraftOrder (lineItems: any) {
@@ -146,6 +160,14 @@ export default defineComponent({
         return DateTime.local().plus(timeDiff).toRelative();
       }
     },
+    getEstimatedDeliveryDate(sku: any, label: string){
+      const item = this.checkPreorderItemAvailability.find((item: any) => {
+        return item.sku == sku && item.label === label
+      });
+      if(item){
+        return item.estimatedDeliveryDate;
+      }
+    }
   },
   setup() {
     const store = useStore();

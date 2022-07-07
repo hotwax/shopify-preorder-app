@@ -16,8 +16,16 @@ const getShopifyConfigId = async (payload: any): Promise <any>  => {
   });
 }
 
+const checkPreorderItemAvailability = async (payload: any): Promise <any>  => {
+  return api({
+    url: "/checkPreorderItemAvailability",
+    method: "post",
+    data: payload
+  });
+}
 
 export {
   generateAccessToken,
-  getShopifyConfigId
+  getShopifyConfigId,
+  checkPreorderItemAvailability
 }
