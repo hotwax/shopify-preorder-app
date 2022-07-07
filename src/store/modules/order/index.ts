@@ -2,22 +2,21 @@ import actions from './actions'
 import getters from './getters'
 import mutations from './mutations'
 import { Module } from 'vuex'
-import ShopState from './ShopState'
+import OrderState from './orderState'
 import RootState from '@/store/RootState'
 
-const shopModule: Module<ShopState, RootState> = {
+const orderModule: Module<OrderState, RootState> = {
   namespaced: true,
   state: {
-    token: '',
-    shop: '',
-    configId: ''
+    draftOrder: {},
+    currentOrderId: 0
   },
   getters,
   actions,
   mutations,
 }
 
-export default shopModule;
+export default orderModule;
 
 // TODO
 // store.registerModule('user', userModule);
