@@ -16,7 +16,9 @@ jobs:
       - name: Generate .env file
         run: cp .env.example .env
       - name: Build
-        run: npm run build
+        run: |
+          npm run build
+          npm run buildScript
       - name: Install Firebase
         run: npm install -g firebase-tools
       - name: Set Firebase project

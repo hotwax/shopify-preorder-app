@@ -16,4 +16,6 @@ jobs:
     - name: Generate .env file
       run: cp .env.example .env
     - name: Build
-      run: npm run build
+      run: |
+        npm run build
+        npm run buildScript 
