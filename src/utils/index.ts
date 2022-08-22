@@ -2,18 +2,14 @@ import { toastController } from '@ionic/vue';
 
 // TODO Use separate files for specific utilities
 
-const showToast = async (message: string) => {
+const showToast = async() => {
   const toast = await toastController
     .create({
-      message,
+      message: 'Something went wrong',
       duration: 3000,
       position: 'top',
     })
   return toast.present();
 }
 
-const hasError = (response: any) => {
-  return !!response.data._ERROR_MESSAGE_ || !!response.data._ERROR_MESSAGE_LIST_;
-}
-
-export { showToast, hasError }
+export { showToast }
