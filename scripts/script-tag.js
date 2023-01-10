@@ -60,7 +60,7 @@
     function isItemAvailableForOrder () {
         return new Promise(function(resolve, reject) {
             jQueryPreOrder.getJSON(`${window.location.pathname}.js`, function (data){
-                if (data.tags.includes('Pre-Order') || data.tags.includes('Back-Order')) {
+                if (data.tags.includes('HC:Pre-Order') || data.tags.includes('HC:Backorder')) {
                     resolve(data)
                 }
                 reject(false)
@@ -94,7 +94,7 @@
 
             let checkItemAvailablity = await isItemAvailableForOrder().then((product) => {
                 // checking what type of tag product contains (Pre-Order / Back-order) and on the basis of that will check for metafield
-                productType = product.tags.includes('Pre-Order') ? 'Pre-Order' : product.tags.includes('Back-Order') ? 'Back-Order' : ''
+                productType = product.tags.includes('HC:Pre-Order') ? 'Pre-Order' : product.tags.includes('HC:Backorder') ? 'Back-Order' : ''
 
                 // checking if continue selling is enabled for the variant or not
                 return product.variants.find((variant) => variant.id == variantId).available
@@ -154,14 +154,14 @@
                 const variantTagInput = jQueryPreOrder(element);
 
                 // checking for Pre-Order or Back-Order tag
-                if (variantTagInput.val().includes('Pre-Order') || variantTagInput.val().includes('Back-Order')) {
+                if (variantTagInput.val().includes('HC:Pre-Order') || variantTagInput.val().includes('HC:Backorder')) {
 
                     const backOrderDate = variantTagInput.siblings("input[id=hc_backOrderDate]").val()
                     const preOrderDate = variantTagInput.siblings("input[id=hc_preOrderDate]").val()
                     const continueSelling = variantTagInput.siblings("input[id=hc_continueSelling]").val()
                     const variantInventory = variantTagInput.siblings("input[id=hc_inventory]").val()
 
-                    const productType = variantTagInput.val().includes('Pre-Order') ? 'Pre-Order' : variantTagInput.val().includes('Back-Order') && 'Back-Order'
+                    const productType = variantTagInput.val().includes('HC:Pre-Order') ? 'Pre-Order' : variantTagInput.val().includes('HC:Backorder') && 'Back-Order'
 
                     if (continueSelling && continueSelling == 'true' && variantInventory <= 0) {
 
