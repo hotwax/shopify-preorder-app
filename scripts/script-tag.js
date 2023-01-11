@@ -60,9 +60,11 @@
     function isItemAvailableForOrder () {
         return new Promise(function(resolve, reject) {
             jQueryPreOrder.getJSON(`${window.location.pathname}.js`, function (data){
-                if (data.tags.includes('Pre-Order') || data.tags.includes('Back-Order')) {
+                if (data.tags.includes('HC:Pre-Order') || data.tags.includes('HC:Backorder')) {
                     resolve(data)
                 }
+                reject(false)
+            }).fail(function (){
                 reject(false)
             })
         })
@@ -92,23 +94,30 @@
             preorderButton.off('click', addToCart);
             preorderButton.siblings().css('display', 'block');
 
-            let checkItemAvailablity = await isItemAvailableForOrder().then((product) => {
-                // checking what type of tag product contains (Pre-Order / Back-order) and on the basis of that will check for metafield
-                productType = product.tags.includes('Pre-Order') ? 'Pre-Order' : product.tags.includes('Back-Order') ? 'Back-Order' : ''
+            const metafieldInformation = Object.entries(hc_metaFieldsData).find(([key, value]) => key == variantId)[1][2]
 
+            let checkItemAvailablity = await isItemAvailableForOrder().then((product) => {
+                if(metafieldInformation.status === 'active') {
+                    productType = metafieldInformation.preorderType === 'PRE_ORDER' ? 'Pre-Order' : metafieldInformation.preorderType === 'BACKORDER' ? 'Back-Order' : ''
+                    localDeliveryDate = metafieldInformation.promise_date
+                } else {
+                    // TODO: remove this check just kept it for backward compatibility
+                    // checking what type of tag product contains (Pre-Order / Back-order) and on the basis of that will check for metafield
+                    productType = product.tags.includes('HC:Pre-Order') ? 'Pre-Order' : product.tags.includes('HC:Backorder') ? 'Back-Order' : ''
+
+                    const backOrderDate = Object.entries(hc_metaFieldsData).find(([key, value]) => key == variantId)[1][0]
+                    const preOrderDate = Object.entries(hc_metaFieldsData).find(([key, value]) => key == variantId)[1][1]
+
+                    localDeliveryDate = productType === 'Pre-Order' ? preOrderDate : productType === 'Back-Order' && backOrderDate;
+                }
                 // checking if continue selling is enabled for the variant or not
                 return product.variants.find((variant) => variant.id == variantId).available
             }).catch(err => err);
 
-            checkItemAvailablity = !(jQueryPreOrder("input[id='hc_inventory']").val() > 0) && !(Object.entries(hc_inventory_policy).find(([key, value]) => key == variantId)[1] != "continue");
+            checkItemAvailablity = !(jQueryPreOrder("input[id='hc_inventory']").val() > 0) && !(Object.entries(hc_inventory_policy).find(([key, value]) => key == variantId)[1][0] != "continue");
 
             // if the product does not contains specific tag and continue selling is not enabled then not executing the script
             if (!checkItemAvailablity) return ;
-
-            const backOrderDate = Object.entries(hc_metaFieldsData).find(([key, value]) => key == variantId)[1][0]
-            const preOrderDate = Object.entries(hc_metaFieldsData).find(([key, value]) => key == variantId)[1][1]
-
-            localDeliveryDate = productType === 'Pre-Order' ? preOrderDate : productType === 'Back-Order' && backOrderDate;
 
             // if the date is of past then making it empty
             let now = new Date();
@@ -124,10 +133,10 @@
             buttonLabel = productType === 'Pre-Order' ? 'Pre Order' : productType === 'Back-Order' && 'Back Order'
 
             // will add Pre Order to the button
-            if (preorderButton.is(':input')) {
-                preorderButton.val(buttonLabel);
-            } else {
+            if (preorderButton.is(':button')) {
                 preorderButton.html(`<span>${buttonLabel}</span>`);
+            } else {
+                preorderButton.val(buttonLabel);
             }
 
             // will find for a tag with id hc_preordershipsfrom and if found then add the date to the tag
@@ -154,14 +163,14 @@
                 const variantTagInput = jQueryPreOrder(element);
 
                 // checking for Pre-Order or Back-Order tag
-                if (variantTagInput.val().includes('Pre-Order') || variantTagInput.val().includes('Back-Order')) {
+                if (variantTagInput.val().includes('HC:Pre-Order') || variantTagInput.val().includes('HC:Backorder')) {
 
                     const backOrderDate = variantTagInput.siblings("input[id=hc_backOrderDate]").val()
                     const preOrderDate = variantTagInput.siblings("input[id=hc_preOrderDate]").val()
                     const continueSelling = variantTagInput.siblings("input[id=hc_continueSelling]").val()
                     const variantInventory = variantTagInput.siblings("input[id=hc_inventory]").val()
 
-                    const productType = variantTagInput.val().includes('Pre-Order') ? 'Pre-Order' : variantTagInput.val().includes('Back-Order') && 'Back-Order'
+                    const productType = variantTagInput.val().includes('HC:Pre-Order') ? 'Pre-Order' : variantTagInput.val().includes('HC:Backorder') && 'Back-Order'
 
                     if (continueSelling && continueSelling == 'true' && variantInventory <= 0) {
 
