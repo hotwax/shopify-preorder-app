@@ -10,10 +10,10 @@
     function getAddToCartLabel () {
         if (location.pathname.includes('products')) {
             const addToCartButton = jQueryPreOrder("#hc_preorderButton, .hc_preorderButton")
-            if (addToCartButton.is(':input')) {
-                addToCartLabel = addToCartButton.val();
-            } else {
+            if (addToCartButton.is(':button')) {
                 addToCartLabel = addToCartButton.html();
+            } else {
+                addToCartLabel = addToCartButton.val();
             }
         }
     }
@@ -84,10 +84,10 @@
             let productType = '';
 
             hcpreorderShipsFrom.css('visibility', 'hidden');
-            if (preorderButton.is(':input')) {
-                preorderButton.val(addToCartLabel);
-            } else {
+            if (preorderButton.is(':button')) {
                 preorderButton.html(addToCartLabel);
+            } else {
+                preorderButton.val(addToCartLabel);
             }
 
             // removing the click event with handler addToCart
@@ -114,7 +114,7 @@
                 return product.variants.find((variant) => variant.id == variantId).available
             }).catch(err => err);
 
-            checkItemAvailablity = !(jQueryPreOrder("input[id='hc_inventory']").val() > 0) && !(Object.entries(hc_inventory_policy).find(([key, value]) => key == variantId)[1][0] != "continue");
+            checkItemAvailablity = !(Object.entries(hc_inventory_policy).find(([key, value]) => key == variantId)[1][1] > 0) && !(Object.entries(hc_inventory_policy).find(([key, value]) => key == variantId)[1][0] != "continue");
 
             // if the product does not contains specific tag and continue selling is not enabled then not executing the script
             if (!checkItemAvailablity) return ;
