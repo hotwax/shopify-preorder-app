@@ -99,8 +99,8 @@
             const metafieldInformation = currentProductMetaData && currentProductMetaData.hcPromiseDate ? JSON.parse(currentProductMetaData.hcPromiseDate) : '';
 
             let checkItemAvailablity = await isItemAvailableForOrder().then((product) => {
-                if(metafieldInformation && metafieldInformation.status === 'active') {
-                    productType = metafieldInformation.preorderType === 'PRE_ORDER' ? 'Pre-Order' : metafieldInformation.preorderType === 'BACKORDER' ? 'Back-Order' : ''
+                if(metafieldInformation && metafieldInformation.status) {
+                    productType = metafieldInformation.status == 'active' ? metafieldInformation.preorderType === 'PRE_ORDER' ? 'Pre-Order' : metafieldInformation.preorderType === 'BACKORDER' ? 'Back-Order' : '' : ''
                     localDeliveryDate = metafieldInformation.promise_date
                 } else {
                     // TODO: remove this check just kept it for backward compatibility
@@ -116,7 +116,7 @@
                 return product.variants.find((variant) => variant.id == variantId).available
             }).catch(err => err);
 
-            checkItemAvailablity = checkItemAvailablity && currentProductMetaData.quantity <= 0 && currentProductMetaData.continueSelling == "continue";
+            checkItemAvailablity = productType && checkItemAvailablity && currentProductMetaData.quantity <= 0 && currentProductMetaData.continueSelling == "continue";
 
             // if the product does not contains specific tag and continue selling is not enabled then not executing the script
             if (!checkItemAvailablity) return ;
@@ -167,19 +167,33 @@
                 // checking for Pre-Order or Back-Order tag
                 if (variantTagInput.val().includes('HC:Pre-Order') || variantTagInput.val().includes('HC:Backorder')) {
 
-                    const backOrderDate = variantTagInput.siblings("input[id=hc_backOrderDate]").val()
-                    const preOrderDate = variantTagInput.siblings("input[id=hc_preOrderDate]").val()
+                    let productType = ''
+                    let date = ''
+
+                    const backOrderDate = variantTagInput.siblings("input[id=hc_backOrderDate]").val() // TODO: remove this as kept for backward compatibility
+                    const preOrderDate = variantTagInput.siblings("input[id=hc_preOrderDate]").val() // TODO: remove this as kept for backward compatibility
+                    const isAvailable = variantTagInput.siblings("input[id=hc_product_available]").val()
                     const continueSelling = variantTagInput.siblings("input[id=hc_continueSelling]").val()
                     const variantInventory = variantTagInput.siblings("input[id=hc_inventory]").val()
+                    const metaFieldData = variantTagInput.siblings("input[id=hc_metaFieldData]").val() ? JSON.parse(variantTagInput.siblings("input[id=hc_metaFieldData]").val()) : ''
 
-                    const productType = variantTagInput.val().includes('HC:Pre-Order') ? 'Pre-Order' : variantTagInput.val().includes('HC:Backorder') && 'Back-Order'
+                    if (isAvailable && isAvailable == 'true' && continueSelling && continueSelling == 'continue' && variantInventory <= 0) {
 
-                    if (continueSelling && continueSelling == 'true' && variantInventory <= 0) {
+                        // Checking whether metaField has the data and also has a status property with it
+                        if(metaFieldData && metaFieldData.status) {
+                            productType = metaFieldData.status == 'active' ? metaFieldData.preorderType == 'PRE_ORDER' ? 'Pre-Order' : metaFieldData.preorderType == 'BACKORDER' ? 'Back-Order' : '' : ''
+                            date = metaFieldData.promise_date;
+                        } else {
+                            // TODO: remove this code kept it for backward compatibility
+                            productType = variantTagInput.val().includes('HC:Pre-Order') ? 'Pre-Order' : variantTagInput.val().includes('HC:Backorder') ? 'Back-Order' : ''
+                            date = productType === 'Pre-Order' ? preOrderDate : productType === 'Back-Order' ? backOrderDate : '';
+                        }
+
+                        if(!productType) return;
 
                         // finding a button with type submit as the button will be on the same level as the input field so using siblings
                         const preorderButton = variantTagInput.siblings("#hc_preorderButton, .hc_preorderButton");
                         const cartForm = variantTagInput.parent();
-                        let date = productType === 'Pre-Order' ? preOrderDate : productType === 'Back-Order' && backOrderDate;
 
                         // if the date is of past then making it empty
                         let now = new Date();
@@ -190,7 +204,7 @@
 
                         // Using different namespace for preorder and backorder but will update it to use single
                         // namespace for the both the things
-                        const label = productType === 'Pre-Order' ? 'Pre Order' : productType === 'Back-Order' && 'Back Order'
+                        const label = productType === 'Pre-Order' ? 'Pre Order' : productType === 'Back-Order' ? 'Back Order' : ''
 
                         // will add Pre Order / Back Order label to the button
                         preorderButton.val(label);
