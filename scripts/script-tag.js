@@ -190,7 +190,6 @@
                         }
 
                         if(!productType) return;
-
                         // finding a button with type submit as the button will be on the same level as the input field so using siblings
                         const preorderButton = variantTagInput.siblings("#hc_preorderButton, .hc_preorderButton");
                         const cartForm = variantTagInput.parent();
