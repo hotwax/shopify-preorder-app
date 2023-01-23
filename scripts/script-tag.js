@@ -116,10 +116,10 @@
                 return product.variants.find((variant) => variant.id == variantId).available
             }).catch(err => err);
 
-            checkItemAvailablity = productType && checkItemAvailablity && currentProductMetaData.quantity <= 0 && currentProductMetaData.continueSelling == "continue";
+            checkItemAvailablity = checkItemAvailablity && currentProductMetaData.quantity <= 0 && currentProductMetaData.continueSelling == "continue";
 
             // if the product does not contains specific tag and continue selling is not enabled then not executing the script
-            if (!checkItemAvailablity) return ;
+            if (!checkItemAvailablity || !productType) return ;
 
             // if the date is of past then making it empty
             let now = new Date();
