@@ -94,10 +94,12 @@
             preorderButton.off('click', addToCart);
             preorderButton.siblings().css('display', 'block');
 
-            const metafieldInformation = Object.entries(hc_metaFieldsData).find(([key, value]) => key == variantId)[1][2]
+            const currentProductMetaData = hc_metaData[variantId];
+
+            const metafieldInformation = currentProductMetaData && currentProductMetaData.hcPromiseDate ? JSON.parse(currentProductMetaData.hcPromiseDate) : '';
 
             let checkItemAvailablity = await isItemAvailableForOrder().then((product) => {
-                if(metafieldInformation.status === 'active') {
+                if(metafieldInformation && metafieldInformation.status === 'active') {
                     productType = metafieldInformation.preorderType === 'PRE_ORDER' ? 'Pre-Order' : metafieldInformation.preorderType === 'BACKORDER' ? 'Back-Order' : ''
                     localDeliveryDate = metafieldInformation.promise_date
                 } else {
@@ -105,8 +107,8 @@
                     // checking what type of tag product contains (Pre-Order / Back-order) and on the basis of that will check for metafield
                     productType = product.tags.includes('HC:Pre-Order') ? 'Pre-Order' : product.tags.includes('HC:Backorder') ? 'Back-Order' : ''
 
-                    const backOrderDate = Object.entries(hc_metaFieldsData).find(([key, value]) => key == variantId)[1][0]
-                    const preOrderDate = Object.entries(hc_metaFieldsData).find(([key, value]) => key == variantId)[1][1]
+                    const backOrderDate = currentProductMetaData.hcBackOrderDate
+                    const preOrderDate = currentProductMetaData.hcPreOrderDate
 
                     localDeliveryDate = productType === 'Pre-Order' ? preOrderDate : productType === 'Back-Order' && backOrderDate;
                 }
@@ -114,7 +116,7 @@
                 return product.variants.find((variant) => variant.id == variantId).available
             }).catch(err => err);
 
-            checkItemAvailablity = !(Object.entries(hc_inventory_policy).find(([key, value]) => key == variantId)[1][1] > 0) && !(Object.entries(hc_inventory_policy).find(([key, value]) => key == variantId)[1][0] != "continue");
+            checkItemAvailablity = checkItemAvailablity && currentProductMetaData.quantity <= 0 && currentProductMetaData.continueSelling == "continue";
 
             // if the product does not contains specific tag and continue selling is not enabled then not executing the script
             if (!checkItemAvailablity) return ;
