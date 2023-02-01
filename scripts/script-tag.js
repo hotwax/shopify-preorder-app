@@ -96,13 +96,13 @@
         } else {
             // TODO: remove this check just kept it for backward compatibility
             // checking what type of tag product contains (Pre-Order / Back-order) and on the basis of that will check for metafield
-            const productTags = tags ? tags : currentProduct.tags
+            const productTags = tags ? tags : currentProduct ? currentProduct.tags : ''
             productType = productTags.includes('HC:Pre-Order') ? 'Pre-Order' : productTags.includes('HC:Backorder') ? 'Back-Order' : ''
 
             const backOrderEstimatedDate = backOrderDate ? backOrderDate : currentProductMetaData.hcBackOrderDate
             const preOrdeEstimatedDate = preOrderDate ? preOrderDate : currentProductMetaData.hcPreOrderDate
 
-            estimatedDeliveryDate = productType === 'Pre-Order' ? preOrdeEstimatedDate : productType === 'Back-Order' && backOrderEstimatedDate;
+            estimatedDeliveryDate = productType === 'Pre-Order' ? preOrdeEstimatedDate : productType === 'Back-Order' ? backOrderEstimatedDate : '';
         }
 
         return { productType, estimatedDeliveryDate }
@@ -149,7 +149,7 @@
 
             // Using different namespace for preorder and backorder but will update it to use single
             // namespace for the both the things
-            const label = productType === 'Pre-Order' ? 'Pre Order' : productType === 'Back-Order' && 'Back Order'
+            const label = productType === 'Pre-Order' ? 'Pre Order' : productType === 'Back-Order' ? 'Back Order' : ''
 
             // will add Pre Order to the button
             if (preorderButton.is(':button')) {
