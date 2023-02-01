@@ -1,19 +1,18 @@
 (function () {
-    let jQueryPreOrder;
-    let addToCartLabel;
-    let localDeliveryDate, buttonLabel;
+    let jQueryPreOrder, addToCartLabel, currentProduct;
 
-    this.preOrderCustomConfig = {
-        'enableCartRedirection': true
+    let preOrderCustomConfig = {
+        'enableCartRedirection': true,
+        ...this.hcPreOrderCustomConfig
     };
 
     function getAddToCartLabel () {
         if (location.pathname.includes('products')) {
             const addToCartButton = jQueryPreOrder("#hc_preorderButton, .hc_preorderButton")
-            if (addToCartButton.is(':input')) {
-                addToCartLabel = addToCartButton.val();
-            } else {
+            if (addToCartButton.is(':button')) {
                 addToCartLabel = addToCartButton.html();
+            } else {
+                addToCartLabel = addToCartButton.val();
             }
         }
     }
@@ -57,15 +56,56 @@
         });
     }
 
-    function isItemAvailableForOrder () {
+    function isItemAvailableForPreOrderOrBackOrder (variantId) {
         return new Promise(function(resolve, reject) {
             jQueryPreOrder.getJSON(`${window.location.pathname}.js`, function (data){
                 if (data.tags.includes('HC:Pre-Order') || data.tags.includes('HC:Backorder')) {
-                    resolve(data)
+                    currentProduct = data
+
+                    const currentProductMetaData = hc_metaData[variantId];
+
+                    const isAvailable = currentProduct.variants.find((variant) => variant.id == variantId).available
+                    const hasContinueSellingEnabled = currentProductMetaData.continueSelling == "continue";
+                    const isOutOfStock = currentProductMetaData.quantity <= 0;
+
+                    resolve(isAvailable && hasContinueSellingEnabled && isOutOfStock)
                 }
+                reject(false)
+            }).fail(function (){
                 reject(false)
             })
         })
+    }
+
+    function getProductTypeAndEstimatedDate({ variantId, metaData, backOrderDate, preOrderDate, tags }) {
+        let currentProductMetaData, metafieldInformation;
+
+        // handled condition for product and category page separately
+        if(metaData) {
+            currentProductMetaData = metafieldInformation = metaData ? metaData : {};
+        } else {
+            currentProductMetaData = hc_metaData[variantId];
+            metafieldInformation = currentProductMetaData && currentProductMetaData.hcPromiseDate ? JSON.parse(currentProductMetaData.hcPromiseDate) : '';
+        }
+
+        let productType, estimatedDeliveryDate;
+
+        if(metafieldInformation && metafieldInformation.status) {
+            productType = metafieldInformation.status == 'active' ? metafieldInformation.preorderType === 'PRE_ORDER' ? 'Pre-Order' : metafieldInformation.preorderType === 'BACKORDER' ? 'Back-Order' : '' : ''
+            estimatedDeliveryDate = metafieldInformation.promise_date
+        } else {
+            // TODO: remove this check just kept it for backward compatibility
+            // checking what type of tag product contains (Pre-Order / Back-order) and on the basis of that will check for metafield
+            const productTags = tags ? tags : currentProduct ? currentProduct.tags : ''
+            productType = productTags.includes('HC:Pre-Order') ? 'Pre-Order' : productTags.includes('HC:Backorder') ? 'Back-Order' : ''
+
+            const backOrderEstimatedDate = backOrderDate ? backOrderDate : currentProductMetaData.hcBackOrderDate
+            const preOrdeEstimatedDate = preOrderDate ? preOrderDate : currentProductMetaData.hcPreOrderDate
+
+            estimatedDeliveryDate = productType === 'Pre-Order' ? preOrdeEstimatedDate : productType === 'Back-Order' ? backOrderEstimatedDate : '';
+        }
+
+        return { productType, estimatedDeliveryDate }
     }
 
     async function initialisePreOrder () {
@@ -76,75 +116,63 @@
 
             jQueryPreOrder(".hc_productForm").each(async function (i, form) {
             const cartForm = jQueryPreOrder(form)
-            const variantId = cartForm.serializeArray().find(ele => ele.name === "id").value;
+            const currentVariantId = cartForm.serializeArray().find(ele => ele.name === "id").value;
 
             const preorderButton = cartForm.find("#hc_preorderButton, .hc_preorderButton");
-            let productType = '';
 
             hcpreorderShipsFrom.css('visibility', 'hidden');
-            if (preorderButton.is(':input')) {
-                preorderButton.val(addToCartLabel);
-            } else {
+            if (preorderButton.is(':button')) {
                 preorderButton.html(addToCartLabel);
+            } else {
+                preorderButton.val(addToCartLabel);
             }
 
             // removing the click event with handler addToCart
             preorderButton.off('click', addToCart);
             preorderButton.siblings().css('display', 'block');
 
-            let checkItemAvailablity = await isItemAvailableForOrder().then((product) => {
-                // checking what type of tag product contains (Pre-Order / Back-order) and on the basis of that will check for metafield
-                productType = product.tags.includes('HC:Pre-Order') ? 'Pre-Order' : product.tags.includes('HC:Backorder') ? 'Back-Order' : ''
+            let isItemAvailable = await isItemAvailableForPreOrderOrBackOrder(currentVariantId)
 
-                // checking if continue selling is enabled for the variant or not
-                return product.variants.find((variant) => variant.id == variantId).available
-            }).catch(err => err);
-
-            checkItemAvailablity = !(jQueryPreOrder("input[id='hc_inventory']").val() > 0) && !(Object.entries(hc_inventory_policy).find(([key, value]) => key == variantId)[1] != "continue");
+            let { productType, estimatedDeliveryDate } = getProductTypeAndEstimatedDate({ variantId: currentVariantId });
 
             // if the product does not contains specific tag and continue selling is not enabled then not executing the script
-            if (!checkItemAvailablity) return ;
-
-            const backOrderDate = Object.entries(hc_metaFieldsData).find(([key, value]) => key == variantId)[1][0]
-            const preOrderDate = Object.entries(hc_metaFieldsData).find(([key, value]) => key == variantId)[1][1]
-
-            localDeliveryDate = productType === 'Pre-Order' ? preOrderDate : productType === 'Back-Order' && backOrderDate;
+            if (!isItemAvailable || !productType) return ;
 
             // if the date is of past then making it empty
             let now = new Date();
             now.setHours(0, 0, 0, 0)
-            if (new Date(localDeliveryDate) < now) {
-                localDeliveryDate = '';
+            if (new Date(estimatedDeliveryDate) < now) {
+                estimatedDeliveryDate = '';
             }
 
             preorderButton.siblings().css('display', 'none');
 
             // Using different namespace for preorder and backorder but will update it to use single
             // namespace for the both the things
-            buttonLabel = productType === 'Pre-Order' ? 'Pre Order' : productType === 'Back-Order' && 'Back Order'
+            const label = productType === 'Pre-Order' ? 'Pre Order' : productType === 'Back-Order' ? 'Back Order' : ''
 
             // will add Pre Order to the button
-            if (preorderButton.is(':input')) {
-                preorderButton.val(buttonLabel);
+            if (preorderButton.is(':button')) {
+                preorderButton.html(`<span>${label}</span>`);
             } else {
-                preorderButton.html(`<span>${buttonLabel}</span>`);
+                preorderButton.val(label);
             }
 
             // will find for a tag with id hc_preordershipsfrom and if found then add the date to the tag
             if(hcpreorderShipsFrom.length > 0) {
                 // if the value of the metafield is not _NA_ and NULL then only making the date field visible
-                if (localDeliveryDate && localDeliveryDate !== 'NULL' && localDeliveryDate !== '_NA_') {
-                    span.html(`${localDeliveryDate}`)
+                if (estimatedDeliveryDate && estimatedDeliveryDate !== 'NULL' && estimatedDeliveryDate !== '_NA_') {
+                    span.html(`${estimatedDeliveryDate}`)
                     hcpreorderShipsFrom.css('visibility', 'visible');
                 } else if (productType === 'Back-Order' && jQueryPreOrder(".hc_backorderString").length){
                     hcpreorderShipsFrom.css('visibility', 'visible');
-                    localDeliveryDate = jQueryPreOrder(".hc_backorderString").text();
-                    span.html(`${localDeliveryDate}`)
+                    estimatedDeliveryDate = jQueryPreOrder(".hc_backorderString").text();
+                    span.html(`${estimatedDeliveryDate}`)
                 }
             }
             preorderButton.off('click')
             // will handle the click event on the pre order button
-            preorderButton.on("click", { cartForm },  addToCart);
+            preorderButton.on("click", { cartForm, label, estimatedDeliveryDate },  addToCart);
             })
         } else {
             // this part executes on all the page other than product page
@@ -152,94 +180,68 @@
             jQueryPreOrder("input[id='hc_tags']").map(async function (index, element) {
 
                 const variantTagInput = jQueryPreOrder(element);
+                const tags = variantTagInput.val()
 
                 // checking for Pre-Order or Back-Order tag
-                if (variantTagInput.val().includes('HC:Pre-Order') || variantTagInput.val().includes('HC:Backorder')) {
+                if (tags.includes('HC:Pre-Order') || tags.includes('HC:Backorder')) {
 
-                    const backOrderDate = variantTagInput.siblings("input[id=hc_backOrderDate]").val()
-                    const preOrderDate = variantTagInput.siblings("input[id=hc_preOrderDate]").val()
+                    const backOrderDate = variantTagInput.siblings("input[id=hc_backOrderDate]").val() // TODO: remove this as kept for backward compatibility
+                    const preOrderDate = variantTagInput.siblings("input[id=hc_preOrderDate]").val() // TODO: remove this as kept for backward compatibility
+                    const isAvailable = variantTagInput.siblings("input[id=hc_product_available]").val()
                     const continueSelling = variantTagInput.siblings("input[id=hc_continueSelling]").val()
                     const variantInventory = variantTagInput.siblings("input[id=hc_inventory]").val()
+                    const metaData = variantTagInput.siblings("input[id=hc_metaFieldData]").val() ? JSON.parse(variantTagInput.siblings("input[id=hc_metaFieldData]").val()) : ''
 
-                    const productType = variantTagInput.val().includes('HC:Pre-Order') ? 'Pre-Order' : variantTagInput.val().includes('HC:Backorder') && 'Back-Order'
+                    if (isAvailable && isAvailable == 'true' && continueSelling && continueSelling == 'continue' && variantInventory <= 0) {
 
-                    if (continueSelling && continueSelling == 'true' && variantInventory <= 0) {
+                        let { productType, estimatedDeliveryDate } = getProductTypeAndEstimatedDate({ metaData, backOrderDate, preOrderDate, tags })
+                        
+                        if(!productType) return;
 
                         // finding a button with type submit as the button will be on the same level as the input field so using siblings
                         const preorderButton = variantTagInput.siblings("#hc_preorderButton, .hc_preorderButton");
                         const cartForm = variantTagInput.parent();
-                        let date = productType === 'Pre-Order' ? preOrderDate : productType === 'Back-Order' && backOrderDate;
 
                         // if the date is of past then making it empty
                         let now = new Date();
                         now.setHours(0, 0, 0, 0)
-                        if (new Date(date) < now) {
-                            date = '';
+                        if (new Date(estimatedDeliveryDate) < now) {
+                            estimatedDeliveryDate = '';
                         }
 
                         // Using different namespace for preorder and backorder but will update it to use single
                         // namespace for the both the things
-                        const label = productType === 'Pre-Order' ? 'Pre Order' : productType === 'Back-Order' && 'Back Order'
+                        const label = productType === 'Pre-Order' ? 'Pre Order' : productType === 'Back-Order' ? 'Back Order' : ''
 
                         // will add Pre Order / Back Order label to the button
                         preorderButton.val(label);
 
-                        if ((!date || date == '_NA_' || date == 'NULL') && productType === 'Back-Order' && jQueryPreOrder(".hc_backorderString").length) {
-                            date = jQueryPreOrder(".hc_backorderString").text();
+                        if ((!estimatedDeliveryDate || estimatedDeliveryDate == '_NA_' || estimatedDeliveryDate == 'NULL') && productType === 'Back-Order' && jQueryPreOrder(".hc_backorderString").length) {
+                            estimatedDeliveryDate = jQueryPreOrder(".hc_backorderString").text();
                         }
 
                         // will handle the click event on the pre order button
-                        preorderButton.on("click", {cartForm, label, date}, addToCartFromProductCard);
+                        preorderButton.on("click", {cartForm, label, estimatedDeliveryDate}, addToCart);
                     }
                 }
             })
         }
     }
 
-    // defined this method to handle the add to cart event from the product cards
-    function addToCartFromProductCard(event) {
+    // defined this method to handle add to cart from the product detail page
+    function addToCart(event) {
+        let addToCartForm = event.data.cartForm;
+        let estimatedDeliveryDate = event.data.estimatedDeliveryDate;
 
         event.preventDefault();
         event.stopImmediatePropagation();
 
         let orderProperty = jQueryPreOrder(`<input id="pre-order-item" name="properties[Note]" value="${event.data.label}" type="hidden"/>`)
-        let estimatedDeliveryDateProperty = jQueryPreOrder(`<input id="pre-order-item" name="properties[PROMISE_DATE]" value="${event.data.date}" type="hidden"/>`)
-
-        event.data.cartForm.append(orderProperty)
-        // adding promise date to cart only if it's present
-        if (event.data.date && event.data.date !== 'NULL' && event.data.date !== '_NA_') event.data.cartForm.append(estimatedDeliveryDateProperty)
-
-        // using the cart add endpoint to add the product to cart, as using the theme specific methods is not recommended.
-        jQueryPreOrder.ajax({
-            type: "POST",
-            url: '/cart/add.js',
-            data: event.data.cartForm.serialize(),
-            dataType: 'JSON',
-            success: function () {
-                // redirecting the user to the cart page after the product gets added to the cart
-                if (preOrderCustomConfig.enableCartRedirection) {
-                    location.replace('/cart');
-                }
-            }
-        })
-
-        orderProperty.remove();
-        if (event.data.date && event.data.date !== 'NULL' && event.data.date !== '_NA_') estimatedDeliveryDateProperty.remove();
-    }
-
-    // defined this method to handle add to cart from the product detail page
-    function addToCart(event) {
-        let addToCartForm = event.data.cartForm;
-
-        event.preventDefault();
-        event.stopImmediatePropagation();
-
-        let orderProperty = jQueryPreOrder(`<input id="pre-order-item" name="properties[Note]" value="${buttonLabel}" type="hidden"/>`)
-        let estimatedDeliveryDateProperty = jQueryPreOrder(`<input id="pre-order-item" name="properties[PROMISE_DATE]" value="${localDeliveryDate}" type="hidden"/>`)
+        let estimatedDeliveryDateProperty = jQueryPreOrder(`<input id="pre-order-item" name="properties[PROMISE_DATE]" value="${estimatedDeliveryDate}" type="hidden"/>`)
 
         addToCartForm.append(orderProperty)
         // adding promise date to cart only if it's present
-        if (localDeliveryDate && localDeliveryDate !== 'NULL' && localDeliveryDate !== '_NA_') addToCartForm.append(estimatedDeliveryDateProperty)
+        if (estimatedDeliveryDate && estimatedDeliveryDate !== 'NULL' && estimatedDeliveryDate !== '_NA_') addToCartForm.append(estimatedDeliveryDateProperty)
 
         // using the cart add endpoint to add the product to cart, as using the theme specific methods is not recommended.
         jQueryPreOrder.ajax({
@@ -256,7 +258,7 @@
         })
 
         orderProperty.remove();
-        if (localDeliveryDate && localDeliveryDate !== 'NULL' && localDeliveryDate !== '_NA_') estimatedDeliveryDateProperty.remove();
+        if (estimatedDeliveryDate && estimatedDeliveryDate !== 'NULL' && estimatedDeliveryDate !== '_NA_') estimatedDeliveryDateProperty.remove();
     }
 
     // TODO move it to intialise block
