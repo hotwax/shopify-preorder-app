@@ -1,8 +1,9 @@
 (function () {
     let jQueryPreOrder, addToCartLabel, currentProduct;
 
-    this.preOrderCustomConfig = {
-        'enableCartRedirection': true
+    let preOrderCustomConfig = {
+        'enableCartRedirection': true,
+        ...this.hcPreOrderCustomConfig
     };
 
     function getAddToCartLabel () {
